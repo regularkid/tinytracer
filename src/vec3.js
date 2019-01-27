@@ -5,6 +5,7 @@ class Vec3
     Sub(v) { this.x -= v.x; this.y -= v.y; this.z -= v.z; }
     Scale(s) { this.x *= s; this.y *= s; this.z *= s; }
     Dot(v) { return (this.x*v.x + this.y*v.y + this.z*v.z); }
+    Invert() { this.x = -this.x; this.y = -this.y; this.z = -this.z; }
 
     Normalize()
     {

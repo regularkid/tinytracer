@@ -9,13 +9,10 @@ function Render()
 {
     let start = Date.now();
 
-    curAngle += 6.28*0.016;
-    if (curAngle >= 6.28)
-    {
-        curAngle -= 6.28;
-    }
-    lights[0].position.x = Math.cos(curAngle)*15.0;
-    lights[0].position.z = -15 + Math.sin(curAngle)*15.0;
+    // TEMP!
+    // curAngle = (Date.now() * 0.0005) % 6.28;
+    // lights[0].position.x = Math.cos(curAngle)*15.0;
+    // lights[0].position.z = -15 + Math.sin(curAngle)*15.0;
 
     for (var y = 0; y < ctx.canvas.height; y++)
     {
@@ -37,6 +34,15 @@ function Render()
     console.log(elapsed);
 }
 
+function Reflect(i, n)
+{
+    let reflectedDir = new Vec3(i.x, i.y, i.z);
+    let t = new Vec3(n.x, n.y, n.z);
+    t.Scale(2.0*i.Dot(n));
+    reflectedDir.Sub(t);
+    return reflectedDir;
+}
+
 function CastRay(origin, dir)
 {
     let hitPosition = new Vec3();
@@ -49,8 +55,19 @@ function CastRay(origin, dir)
         toLight.Normalize();
         lightIntensity += toLight.Dot(hitNormal) * lights[0].intensity;
 
+        let specIntensity = 0.0;
+        let specExponent = 50.0;
+        //let specExponent = 10.0;
+        let reflectedDirInv = Reflect(new Vec3(-toLight.x, -toLight.y, -toLight.z), hitNormal);
+        reflectedDirInv.Invert();
+        specIntensity += Math.pow(Math.max(0.0, reflectedDirInv.Dot(dir)), specExponent)*lights[0].intensity;
+
         let color = new Vec3(0.0, 1.0, 0.0);
         color.Scale(lightIntensity);
+
+        let albedo = new Vec3(0.6, 0.3);
+        //let albedo = new Vec3(0.9, 0.1);
+        color.Scale(albedo.x + specIntensity*albedo.y);
         return color;
     }
 
