@@ -1,33 +1,30 @@
 class Sphere
 {
-    constructor(center, radius)
+    constructor(center, radius, material)
     {
         this.center = center;
         this.radius = radius;
+        this.radiusSqr = radius*radius;
+        this.material = material;
     }
 
     Intersects(origin, dir, hitPosition, hitNormal)
     {
-        // From: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection &
-        // https://github.com/ssloy/tinyraytracer/wiki
-        let L = new Vec3(this.center.x, this.center.y, this.center.z);
-        L.Sub(origin);
-        let tca = L.Dot(dir);
-        let d2 = L.Dot(L) - tca*tca;
-        if (d2 > this.radius*this.radius) return false;
-        let thc = Math.sqrt(this.radius*this.radius - d2);
-        let t0 = tca - thc;
-        let t1 = tca + thc;
-        if (t0 < 0.0) t0 = t1;
-        if (t0 < 0.0) return false;
+        // From: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 
-        hitPosition.x = origin.x + dir.x*t0;
-        hitPosition.y = origin.y + dir.y*t0;
-        hitPosition.z = origin.z + dir.z*t0;
+        // Is the projected sphere point farther away than the radius? If so, the ray doesn't intersect
+        let rayToCenter = new Vec3(this.center.x - origin.x, this.center.y - origin.y, this.center.z - origin.z);
+        let rayProjDist = rayToCenter.Dot(dir);
+        let distToRayProjSqr = (rayToCenter.x*rayToCenter.x + rayToCenter.y*rayToCenter.y + rayToCenter.z*rayToCenter.z) - rayProjDist*rayProjDist;
+        if (distToRayProjSqr > this.radiusSqr)
+        {
+            return false;
+        }
 
-        hitNormal.x = hitPosition.x - this.center.x;
-        hitNormal.y = hitPosition.y - this.center.y;
-        hitNormal.z = hitPosition.z - this.center.z;
+        // For this simple raytracer, just assume that we intersect (ie., no sphere is behind our camera)
+        let projToIntersectionDist = rayProjDist - Math.sqrt(this.radiusSqr - distToRayProjSqr);
+        hitPosition.Set(origin.x + dir.x*projToIntersectionDist, origin.y + dir.y*projToIntersectionDist, origin.z + dir.z*projToIntersectionDist);
+        hitNormal.Set(hitPosition.x - this.center.x, hitPosition.y - this.center.y, hitPosition.z - this.center.z);
         hitNormal.Normalize();
 
         return true;

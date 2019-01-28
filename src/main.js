@@ -1,8 +1,19 @@
 var ctx = document.getElementById("canvas").getContext('2d');
+
+var matRed = new Material(new Vec3(0.4, 0.0, 0.0), new Vec3(1.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
+var matGreen = new Material(new Vec3(0.0, 0.4, 0.0), new Vec3(0.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 10.0);
+var matBlue = new Material(new Vec3(0.0, 0.0, 0.4), new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0), 50.0);
+
 var spheres = new Array();
-spheres.push(new Sphere(new Vec3(0.0, 0.0, -15.0), 5.0));
+spheres.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
+spheres.push(new Sphere(new Vec3(6.0, 2.0, -17.0), 4.0, matGreen));
+spheres.push(new Sphere(new Vec3(-4.0, 2.0, -18.0), 2.5, matBlue));
+
 var lights = new Array();
-lights.push(new Light(new Vec3(-5.0, 10.0, -2.0), 1.0));
+lights.push(new Light(new Vec3(-5.0, 10.0, -2.0), 0.5));
+lights.push(new Light(new Vec3(15.0, 15.0, -5.0), 0.5));
+
+var backgroundColor = new Vec3(0.5, 0.5, 0.5);
 
 var curAngle = 0;
 function Render()
@@ -10,9 +21,9 @@ function Render()
     let start = Date.now();
 
     // TEMP!
-    // curAngle = (Date.now() * 0.0005) % 6.28;
-    // lights[0].position.x = Math.cos(curAngle)*15.0;
-    // lights[0].position.z = -15 + Math.sin(curAngle)*15.0;
+    curAngle = (Date.now() * 0.0005) % 6.28;
+    lights[0].position.x = Math.cos(curAngle)*15.0;
+    lights[0].position.z = -15 + Math.sin(curAngle)*15.0;
 
     for (var y = 0; y < ctx.canvas.height; y++)
     {
@@ -34,44 +45,52 @@ function Render()
     console.log(elapsed);
 }
 
-function Reflect(i, n)
-{
-    let reflectedDir = new Vec3(i.x, i.y, i.z);
-    let t = new Vec3(n.x, n.y, n.z);
-    t.Scale(2.0*i.Dot(n));
-    reflectedDir.Sub(t);
-    return reflectedDir;
-}
-
 function CastRay(origin, dir)
 {
+    let hitSphere = undefined;
     let hitPosition = new Vec3();
     let hitNormal = new Vec3();
-    if (spheres[0].Intersects(origin, dir, hitPosition, hitNormal))
+    for (var i = 0; i < spheres.length; i++)
     {
-        let lightIntensity = 0.0;
-        let toLight = new Vec3(lights[0].position.x, lights[0].position.y, lights[0].position.z);
-        toLight.Sub(hitPosition);
-        toLight.Normalize();
-        lightIntensity += toLight.Dot(hitNormal) * lights[0].intensity;
-
-        let specIntensity = 0.0;
-        let specExponent = 50.0;
-        //let specExponent = 10.0;
-        let reflectedDirInv = Reflect(new Vec3(-toLight.x, -toLight.y, -toLight.z), hitNormal);
-        reflectedDirInv.Invert();
-        specIntensity += Math.pow(Math.max(0.0, reflectedDirInv.Dot(dir)), specExponent)*lights[0].intensity;
-
-        let color = new Vec3(0.0, 1.0, 0.0);
-        color.Scale(lightIntensity);
-
-        let albedo = new Vec3(0.6, 0.3);
-        //let albedo = new Vec3(0.9, 0.1);
-        color.Scale(albedo.x + specIntensity*albedo.y);
-        return color;
+        // Assume sphere are sorted by depth to make this simpler
+        if (spheres[i].Intersects(origin, dir, hitPosition, hitNormal))
+        {
+            hitSphere = spheres[i];
+            break;
+        }
     }
 
-    return new Vec3(0.5, 0.5, 0.5);
+    // Nothing hit - just render the background color
+    if (hitSphere === undefined)
+    {
+        return backgroundColor;
+    }
+
+    // Calculate diffuse/spec intensities
+    let diffuseIntensity = 0.0;
+    let specIntensity = 0.0;
+    for (var i = 0; i < lights.length; i++)
+    {
+        let toLight = lights[i].position.GetCopy();
+        toLight.Sub(hitPosition);
+        toLight.Normalize();
+        diffuseIntensity += toLight.Dot(hitNormal) * lights[i].intensity;
+
+        let reflectedDirInv = toLight.GetReflected(hitNormal);
+        reflectedDirInv.Invert();
+        specIntensity += Math.pow(Math.max(0.0, reflectedDirInv.Dot(dir)), hitSphere.material.specExponent) * lights[i].intensity;
+    }
+    
+    // Phong = ambient + diffuse + spec
+    let ambient = hitSphere.material.ambient.GetCopy();
+
+    let diffuse = hitSphere.material.diffuse.GetCopy();
+    diffuse.Scale(diffuseIntensity);
+
+    let spec = hitSphere.material.spec.GetCopy();
+    spec.Scale(specIntensity);
+
+    return new Vec3(ambient.x+diffuse.x+spec.x, ambient.y+diffuse.y+spec.y, ambient.z+diffuse.z+spec.z);
 }
 
 setInterval(Render, 16);
