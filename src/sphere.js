@@ -8,7 +8,7 @@ class Sphere
         this.material = material;
     }
 
-    Intersects(origin, dir, hitPosition, hitNormal)
+    Intersects(origin, dir, hitPosition, hitNormal, hitMaterial)
     {
         // From: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 
@@ -26,6 +26,7 @@ class Sphere
         hitPosition.Set(origin.x + dir.x*projToIntersectionDist, origin.y + dir.y*projToIntersectionDist, origin.z + dir.z*projToIntersectionDist);
         hitNormal.Set(hitPosition.x - this.center.x, hitPosition.y - this.center.y, hitPosition.z - this.center.z);
         hitNormal.Normalize();
+        hitMaterial.Set(this.material);
 
         return true;
     }

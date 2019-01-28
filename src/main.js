@@ -10,7 +10,7 @@ spheres.push(new Sphere(new Vec3(6.0, 2.0, -17.0), 4.0, matGreen));
 spheres.push(new Sphere(new Vec3(-4.0, 2.0, -18.0), 2.5, matBlue));
 
 var lights = new Array();
-lights.push(new Light(new Vec3(-5.0, 10.0, -2.0), 0.5));
+lights.push(new Light(new Vec3(-5.0, 0.0, -2.0), 0.5));
 lights.push(new Light(new Vec3(15.0, 15.0, -5.0), 0.5));
 
 var backgroundColor = new Vec3(0.5, 0.5, 0.5);
@@ -19,6 +19,7 @@ var curAngle = 0;
 function Render()
 {
     let start = Date.now();
+    let color = new Vec3();
 
     // TEMP!
     curAngle = (Date.now() * 0.0005) % 6.28;
@@ -34,7 +35,7 @@ function Render()
                                -1.0);
             dir.Normalize();
 
-            let color = CastRay(new Vec3(0, 0, 0), dir);
+            CastRay(new Vec3(0, 0, 0), dir, color);
 
             ctx.fillStyle = `rgb(${color.x*255.0}, ${color.y*255.0}, ${color.z*255.0})`;
             ctx.fillRect(x, y, 1, 1);
@@ -45,25 +46,17 @@ function Render()
     console.log(elapsed);
 }
 
-function CastRay(origin, dir)
+function CastRay(origin, dir, color)
 {
-    let hitSphere = undefined;
+    let hitMaterial = new Material();
     let hitPosition = new Vec3();
     let hitNormal = new Vec3();
-    for (var i = 0; i < spheres.length; i++)
-    {
-        // Assume sphere are sorted by depth to make this simpler
-        if (spheres[i].Intersects(origin, dir, hitPosition, hitNormal))
-        {
-            hitSphere = spheres[i];
-            break;
-        }
-    }
 
     // Nothing hit - just render the background color
-    if (hitSphere === undefined)
+    if (!GetSceneIntersection(origin, dir, hitPosition, hitNormal, hitMaterial))
     {
-        return backgroundColor;
+        color.Set(backgroundColor.x, backgroundColor.y, backgroundColor.y);
+        return false;
     }
 
     // Calculate diffuse/spec intensities
@@ -78,19 +71,34 @@ function CastRay(origin, dir)
 
         let reflectedDirInv = toLight.GetReflected(hitNormal);
         reflectedDirInv.Invert();
-        specIntensity += Math.pow(Math.max(0.0, reflectedDirInv.Dot(dir)), hitSphere.material.specExponent) * lights[i].intensity;
+        specIntensity += Math.pow(Math.max(0.0, reflectedDirInv.Dot(dir)), hitMaterial.specExponent) * lights[i].intensity;
     }
     
     // Phong = ambient + diffuse + spec
-    let ambient = hitSphere.material.ambient.GetCopy();
+    let ambient = hitMaterial.ambient.GetCopy();
 
-    let diffuse = hitSphere.material.diffuse.GetCopy();
+    let diffuse = hitMaterial.diffuse.GetCopy();
     diffuse.Scale(diffuseIntensity);
 
-    let spec = hitSphere.material.spec.GetCopy();
+    let spec = hitMaterial.spec.GetCopy();
     spec.Scale(specIntensity);
 
-    return new Vec3(ambient.x+diffuse.x+spec.x, ambient.y+diffuse.y+spec.y, ambient.z+diffuse.z+spec.z);
+    color.Set(ambient.x+diffuse.x+spec.x, ambient.y+diffuse.y+spec.y, ambient.z+diffuse.z+spec.z);
+    return true;
+}
+
+function GetSceneIntersection(origin, dir, hitPosition, hitNormal, hitMaterial)
+{
+    for (var i = 0; i < spheres.length; i++)
+    {
+        // Assume sphere are sorted by depth to make this simpler
+        if (spheres[i].Intersects(origin, dir, hitPosition, hitNormal, hitMaterial))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 setInterval(Render, 16);
