@@ -1,16 +1,17 @@
 var ctx = document.getElementById("canvas").getContext('2d');
 
-var matRed = new Material(new Vec3(0.4, 0.0, 0.0), new Vec3(1.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
-var matGreen = new Material(new Vec3(0.0, 0.4, 0.0), new Vec3(0.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 10.0);
-var matBlue = new Material(new Vec3(0.0, 0.0, 0.4), new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0), 50.0);
+var matRed = new Material(new Vec3(0.2, 0.0, 0.0), new Vec3(1.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
+var matGreen = new Material(new Vec3(0.0, 0.2, 0.0), new Vec3(0.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 10.0);
+var matBlue = new Material(new Vec3(0.0, 0.0, 0.2), new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0), 50.0);
+var matYellow = new Material(new Vec3(0.2, 0.2, 0.0), new Vec3(1.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
 
 var spheres = new Array();
 spheres.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
-spheres.push(new Sphere(new Vec3(6.0, 2.0, -17.0), 4.0, matGreen));
-spheres.push(new Sphere(new Vec3(-4.0, 2.0, -18.0), 2.5, matBlue));
+spheres.push(new Sphere(new Vec3(6.0, 3.0, -17.0), 4.0, matGreen));
+spheres.push(new Sphere(new Vec3(-4.0, 2.0, -20.0), 4.0, matBlue));
 
 var lights = new Array();
-lights.push(new Light(new Vec3(-5.0, 0.0, -2.0), 0.5));
+lights.push(new Light(new Vec3(-5.0, 0.0, -7.0), 0.5));
 lights.push(new Light(new Vec3(15.0, 15.0, -5.0), 0.5));
 
 var backgroundColor = new Vec3(0.5, 0.5, 0.5);
@@ -30,14 +31,12 @@ function Render()
     {
         for (var x = 0; x < ctx.canvas.width; x++)
         {
-            let dir = new Vec3(-1.0 + (x / ctx.canvas.width)*2.0,
-                                1.0 - (y / ctx.canvas.height)*2.0,
-                               -1.0);
+            let dir = new Vec3(-1.0 + (x / ctx.canvas.width)*2.0, 1.0 - (y / ctx.canvas.height)*2.0, -1.0);
             dir.Normalize();
 
             CastRay(new Vec3(0, 0, 0), dir, color);
 
-            ctx.fillStyle = `rgb(${color.x*255.0}, ${color.y*255.0}, ${color.z*255.0})`;
+            ctx.fillStyle = `rgb(${Math.min(color.x, 1.0)*255.0}, ${Math.min(color.y, 1.0)*255.0}, ${Math.min(color.z, 1.0)*255.0})`;
             ctx.fillRect(x, y, 1, 1);
         }
     }
@@ -69,15 +68,23 @@ function CastRay(origin, dir, color)
         toLight.Normalize();
 
         // Any other objects blocking our view of the light? If so, don't include this light source (ie., shadows)
-        // let shadowTestStart = toLight.GetCopy();
-        // shadowTestStart.Scale(0.001);
-        // shadowTestStart.Add(hitPosition);
-        // if (GetSceneIntersection(shadowTestStart, toLight))
-        // {
-        //     continue;
-        // }
+        // Not sure why this doesn't work yet
+        //if (toLight.Dot(hitNormal) > 0.0)
+        {
+            let shadowTestStart = hitNormal.GetCopy();
+            shadowTestStart.Scale(0.001);
+            // if (toLight.Dot(hitNormal) < 0.0)
+            // {
+            //     shadowTestStart.Invert();
+            // }
+            shadowTestStart.Add(hitPosition);
+            if (GetSceneIntersection(shadowTestStart, toLight))
+            {
+                continue;
+            }
+        }
 
-        diffuseIntensity += toLight.Dot(hitNormal) * lights[i].intensity;
+        diffuseIntensity += Math.max(0.0, toLight.Dot(hitNormal) * lights[i].intensity);
 
         let reflectedDirInv = toLight.GetReflected(hitNormal);
         reflectedDirInv.Invert();
