@@ -4,7 +4,7 @@ var matRed = new Material(new Vec3(0.2, 0.0, 0.0), new Vec3(1.0, 0.0, 0.0), new 
 var matGreen = new Material(new Vec3(0.0, 0.2, 0.0), new Vec3(0.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 10.0, 0.5);
 var matBlue = new Material(new Vec3(0.0, 0.0, 0.2), new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0), 50.0);
 var matYellow = new Material(new Vec3(0.2, 0.2, 0.0), new Vec3(1.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
-var matBlack = new Material(new Vec3(0.0, 0.0, 0.0), new Vec3(0.1, 0.1, 0.1), new Vec3(1.0, 1.0, 1.0), 10.0, 0.5);
+var matBlack = new Material(new Vec3(0.0, 0.0, 0.0), new Vec3(0.3, 0.3, 0.3), new Vec3(1.0, 1.0, 1.0), 50.0, 0.25);
 
 var spheres = new Array();
 spheres.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
