@@ -28,11 +28,19 @@ class Sphere
             return false;
         }
 
-        if (hitPosition !== undefined && hitNormal !== undefined && hitMaterial !== undefined)
+        if (hitPosition !== undefined)
         {
             hitPosition.Set(origin.x + dir.x*projToIntersectionDist, origin.y + dir.y*projToIntersectionDist, origin.z + dir.z*projToIntersectionDist);
+        }
+
+        if (hitNormal !== undefined)
+        {
             hitNormal.Set(hitPosition.x - this.center.x, hitPosition.y - this.center.y, hitPosition.z - this.center.z);
             hitNormal.Normalize();
+        }
+
+        if (hitMaterial !== undefined)
+        {
             hitMaterial.Set(this.material);
         }
 
