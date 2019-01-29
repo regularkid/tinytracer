@@ -21,12 +21,20 @@ class Sphere
             return false;
         }
 
-        // For this simple raytracer, just assume that we intersect (ie., no sphere is behind our camera)
+        // Calculate intersection point
         let projToIntersectionDist = rayProjDist - Math.sqrt(this.radiusSqr - distToRayProjSqr);
-        hitPosition.Set(origin.x + dir.x*projToIntersectionDist, origin.y + dir.y*projToIntersectionDist, origin.z + dir.z*projToIntersectionDist);
-        hitNormal.Set(hitPosition.x - this.center.x, hitPosition.y - this.center.y, hitPosition.z - this.center.z);
-        hitNormal.Normalize();
-        hitMaterial.Set(this.material);
+        if (projToIntersectionDist < 0.0)
+        {
+            return false;
+        }
+
+        if (hitPosition !== undefined && hitNormal !== undefined && hitMaterial !== undefined)
+        {
+            hitPosition.Set(origin.x + dir.x*projToIntersectionDist, origin.y + dir.y*projToIntersectionDist, origin.z + dir.z*projToIntersectionDist);
+            hitNormal.Set(hitPosition.x - this.center.x, hitPosition.y - this.center.y, hitPosition.z - this.center.z);
+            hitNormal.Normalize();
+            hitMaterial.Set(this.material);
+        }
 
         return true;
     }

@@ -23,8 +23,8 @@ function Render()
 
     // TEMP!
     curAngle = (Date.now() * 0.0005) % 6.28;
-    lights[0].position.x = Math.cos(curAngle)*15.0;
-    lights[0].position.z = -15 + Math.sin(curAngle)*15.0;
+    lights[0].position.x = Math.cos(curAngle)*25.0;
+    lights[0].position.z = -15 + Math.sin(curAngle)*25.0;
 
     for (var y = 0; y < ctx.canvas.height; y++)
     {
@@ -67,6 +67,16 @@ function CastRay(origin, dir, color)
         let toLight = lights[i].position.GetCopy();
         toLight.Sub(hitPosition);
         toLight.Normalize();
+
+        // Any other objects blocking our view of the light? If so, don't include this light source (ie., shadows)
+        // let shadowTestStart = toLight.GetCopy();
+        // shadowTestStart.Scale(0.001);
+        // shadowTestStart.Add(hitPosition);
+        // if (GetSceneIntersection(shadowTestStart, toLight))
+        // {
+        //     continue;
+        // }
+
         diffuseIntensity += toLight.Dot(hitNormal) * lights[i].intensity;
 
         let reflectedDirInv = toLight.GetReflected(hitNormal);
