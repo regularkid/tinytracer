@@ -68,20 +68,12 @@ function CastRay(origin, dir, color)
         toLight.Normalize();
 
         // Any other objects blocking our view of the light? If so, don't include this light source (ie., shadows)
-        // Not sure why this doesn't work yet
-        //if (toLight.Dot(hitNormal) > 0.0)
+        let shadowTestStart = hitNormal.GetCopy();
+        shadowTestStart.Scale(0.001);
+        shadowTestStart.Add(hitPosition);
+        if (GetSceneIntersection(shadowTestStart, toLight))
         {
-            let shadowTestStart = hitNormal.GetCopy();
-            shadowTestStart.Scale(0.001);
-            // if (toLight.Dot(hitNormal) < 0.0)
-            // {
-            //     shadowTestStart.Invert();
-            // }
-            shadowTestStart.Add(hitPosition);
-            if (GetSceneIntersection(shadowTestStart, toLight))
-            {
-                continue;
-            }
+            continue;
         }
 
         diffuseIntensity += Math.max(0.0, toLight.Dot(hitNormal) * lights[i].intensity);
@@ -99,6 +91,9 @@ function CastRay(origin, dir, color)
 
     let spec = hitMaterial.spec.GetCopy();
     spec.Scale(specIntensity);
+
+    // Get reflected color
+    let reflectedDir = 
 
     color.Set(ambient.x+diffuse.x+spec.x, ambient.y+diffuse.y+spec.y, ambient.z+diffuse.z+spec.z);
     return true;
