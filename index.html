@@ -6,7 +6,14 @@
     </head>
     <body>
         <center>
-            <canvas id="canvas" width="512" height="512" style="width:512px; height:512px; image-rendering:pixelated"></canvas>
+            <canvas id="canvas" width="256" height="256" style="width:256px; height:256px; image-rendering:pixelated"></canvas>
+            <br>
+            <select id="sizeSelect" onchange="SetCanvasSize()">
+                <option value="512">512
+                <option value="256">256
+                <option value="128">128
+                <option value="64">64
+              </select>
         </center>
 
         <script src="src/vec3.js"></script>

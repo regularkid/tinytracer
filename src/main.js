@@ -32,7 +32,7 @@ function Render()
     {
         for (var x = 0; x < ctx.canvas.width; x++)
         {
-            let dir = new Vec3(-1.0 + (x / ctx.canvas.width)*2.0, 1.0 - (y / ctx.canvas.height)*2.0, -1.0);
+            let dir = new Vec3(-1.0 + ((x + 0.5) / ctx.canvas.width)*2.0, 1.0 - ((y + 0.5) / ctx.canvas.height)*2.0, -1.0);
             dir.Normalize();
 
             CastRay(new Vec3(0, 0, 0), dir, color, 1);
@@ -131,3 +131,13 @@ function GetSceneIntersection(origin, dir, hitPosition, hitNormal, hitMaterial)
 }
 
 setInterval(Render, 16);
+
+function SetCanvasSize()
+{
+    let canvas = document.getElementById("canvas");
+    let size = parseInt(document.getElementById("sizeSelect").value);
+    canvas.width = size;
+    canvas.height = size;
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+}
