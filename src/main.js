@@ -6,10 +6,13 @@ var matBlue = new Material(new Vec3(0.0, 0.0, 0.2), new Vec3(0.0, 0.0, 1.0), new
 var matYellow = new Material(new Vec3(0.2, 0.2, 0.0), new Vec3(1.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
 var matBlack = new Material(new Vec3(0.0, 0.0, 0.0), new Vec3(0.3, 0.3, 0.3), new Vec3(1.0, 1.0, 1.0), 50.0, 0.25);
 
-var spheres = new Array();
-spheres.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
-spheres.push(new Sphere(new Vec3(6.0, 3.0, -17.0), 4.0, matBlack));
-spheres.push(new Sphere(new Vec3(-4.0, 2.0, -20.0), 4.0, matBlue));
+var objects = new Array();
+objects.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
+objects.push(new Sphere(new Vec3(6.0, 3.0, -17.0), 4.0, matBlack));
+objects.push(new Sphere(new Vec3(-4.0, 2.0, -20.0), 4.0, matBlue));
+objects.push(new Plane("y", new Vec3(0.0, -9.0, -25.0), 60.0, matGreen));
+//objects.push(new Plane("x", new Vec3(-30.0, 0.0, -25.0), 60.0, matGreen));
+//objects.push(new Plane("z", new Vec3(0.0, 0.0, -55.0), 60.0, matGreen));
 
 var lights = new Array();
 lights.push(new Light(new Vec3(-5.0, 0.0, -7.0), 0.5));
@@ -69,7 +72,7 @@ function CastRay(origin, dir, color, depth)
         toLight.Normalize();
 
         // Any other objects blocking our view of the light? If so, don't include this light source (ie., shadows)
-        if (depth > 0)
+        if (false)//depth > 0)
         {
             let shadowTestStart = hitNormal.GetCopy();
             shadowTestStart.Scale(0.001);
@@ -118,10 +121,10 @@ function CastRay(origin, dir, color, depth)
 
 function GetSceneIntersection(origin, dir, hitPosition, hitNormal, hitMaterial)
 {
-    for (var i = 0; i < spheres.length; i++)
+    for (var i = 0; i < objects.length; i++)
     {
         // Assume sphere are sorted by depth to make this simpler
-        if (spheres[i].Intersects(origin, dir, hitPosition, hitNormal, hitMaterial))
+        if (objects[i].Intersects(origin, dir, hitPosition, hitNormal, hitMaterial))
         {
             return true;
         }

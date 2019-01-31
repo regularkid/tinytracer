@@ -6,11 +6,11 @@
     </head>
     <body>
         <center>
-            <canvas id="canvas" width="256" height="256" style="width:256px; height:256px; image-rendering:pixelated"></canvas>
+            <canvas id="canvas" width="512" height="512" style="width:512px; height:512px; image-rendering:pixelated"></canvas>
             <br>
             <select id="sizeSelect" onchange="SetCanvasSize()">
-                <option value="512">512</option>
-                <option value="256" selected="selected">256</option>
+                <option value="512" selected="selected">512</option>
+                <option value="256">256</option>
                 <option value="128">128</option>
                 <option value="64">64</option>
               </select>
@@ -18,6 +18,7 @@
 
         <script src="src/vec3.js"></script>
         <script src="src/sphere.js"></script>
+        <script src="src/plane.js"></script>
         <script src="src/light.js"></script>
         <script src="src/material.js"></script>
         <script src="src/main.js"></script>
