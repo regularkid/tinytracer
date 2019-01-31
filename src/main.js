@@ -5,12 +5,13 @@ var matGreen = new Material(new Vec3(0.0, 0.2, 0.0), new Vec3(0.0, 1.0, 0.0), ne
 var matBlue = new Material(new Vec3(0.0, 0.0, 0.2), new Vec3(0.0, 0.0, 1.0), new Vec3(1.0, 1.0, 1.0), 50.0);
 var matYellow = new Material(new Vec3(0.2, 0.2, 0.0), new Vec3(1.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
 var matBlack = new Material(new Vec3(0.0, 0.0, 0.0), new Vec3(0.3, 0.3, 0.3), new Vec3(1.0, 1.0, 1.0), 50.0, 0.25);
+var matWhite = new Material(new Vec3(0.2, 0.2, 0.2), new Vec3(0.7, 0.7, 0.7), new Vec3(1.0, 1.0, 1.0), 10.0, 0.5);
 
 var objects = new Array();
 objects.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
 objects.push(new Sphere(new Vec3(6.0, 3.0, -17.0), 4.0, matBlack));
 objects.push(new Sphere(new Vec3(-4.0, 2.0, -20.0), 4.0, matBlue));
-objects.push(new Plane("y", new Vec3(0.0, -9.0, -25.0), 60.0, matGreen));
+objects.push(new Plane("y", new Vec3(0.0, -9.0, -25.0), 60.0, matGreen, matWhite));
 //objects.push(new Plane("x", new Vec3(-30.0, 0.0, -25.0), 60.0, matGreen));
 //objects.push(new Plane("z", new Vec3(0.0, 0.0, -55.0), 60.0, matGreen));
 
@@ -141,6 +142,6 @@ function SetCanvasSize()
     let size = parseInt(document.getElementById("sizeSelect").value);
     canvas.width = size;
     canvas.height = size;
-    canvas.style.width = `${size}px`;
-    canvas.style.height = `${size}px`;
+    //canvas.style.width = `${size}px`;
+    //canvas.style.height = `${size}px`;
 }

@@ -1,13 +1,14 @@
 class Plane
 {
-    constructor(axis, pos, size, material)
+    constructor(axis, pos, size, material1, material2)
     {
         this.axis = axis;
         this.pos = pos;
         this.size = size;
         this.min = new Vec3(this.pos.x - this.size*0.5, this.pos.y - this.size*0.5, this.pos.z - this.size*0.5);
         this.max = new Vec3(this.pos.x + this.size*0.5, this.pos.y + this.size*0.5, this.pos.z + this.size*0.5);
-        this.material = material;
+        this.material1 = material1;
+        this.material2 = material2;
     }
 
     Intersects(origin, dir, hitPosition, hitNormal, hitMaterial)
@@ -70,7 +71,9 @@ class Plane
 
         if (hitMaterial !== undefined)
         {
-            hitMaterial.Set(this.material);
+            let tileScale = 0.25;
+            let tileIdx = Math.abs(Math.floor(intersectionPoint.x*tileScale) + Math.floor(intersectionPoint.z*tileScale));
+            hitMaterial.Set(tileIdx & 1 ? this.material1 : this.material2);
         }
 
         return true;
