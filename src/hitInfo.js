@@ -7,8 +7,10 @@ class HitInfo
         this.normal = normal || new Vec3();
     }
 
-    Copy()
+    CopyTo(hitInfo)
     {
-        return new HitInfo(this.t, this.pos, this.normal);
+        hitInfo.t = this.t;
+        hitInfo.pos = this.pos;
+        hitInfo.normal = this.normal;
     }
 }
