@@ -27,6 +27,7 @@ function Render()
 {
     let start = Date.now();
     let color = new Vec3();
+    let samplesPerPixel = 100;
 
     // TEMP!
     // curAngle = (Date.now() * 0.0005) % 6.28;
@@ -37,12 +38,19 @@ function Render()
     {
         for (var x = 0; x < ctx.canvas.width; x++)
         {
-            let dir = new Vec3(-1.0 + ((x + 0.5) / ctx.canvas.width)*2.0, 1.0 - ((y + 0.5) / ctx.canvas.height)*2.0, -1.0);
-            dir.Normalize();
+            let colorSum = new Vec3(0, 0, 0);
+            for (var s = 0; s < samplesPerPixel; s++)
+            {
+                let dir = new Vec3(-1.0 + ((x + Math.random()) / ctx.canvas.width)*2.0, 1.0 - ((y + Math.random()) / ctx.canvas.height)*2.0, -1.0);
+                dir.Normalize();
 
-            CastRay(new Vec3(0, 0, 0), dir, color, 1);
+                CastRay(new Vec3(0, 0, 0), dir, color, 1);
+                colorSum.Add(color);
+            }
 
-            framebuffer.drawPixel(x, y, color);
+            colorSum.Scale(1.0/samplesPerPixel);
+
+            framebuffer.drawPixel(x, y, colorSum);
         }
     }
 
