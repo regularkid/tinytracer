@@ -5,6 +5,13 @@ class Vec3
     LengthSq() { return this.x*this.x + this.y*this.y + this.z*this.z; }
     Length() { return Math.sqrt(this.LengthSq()); }
     Dot(v) { return (this.x*v.x + this.y*v.y + this.z*v.z); }
+    Cross(v)
+    {
+        let x = this.y * v.z - this.z * v.y;
+        let y = this.z * v.x - this.x * v.z;
+        let z = this.x * v.y - this.y * v.x;
+        return new Vec3(x, y, z);
+    }
     
     // Return a new vector
     Copy() { let v = new Vec3(this.x, this.y, this.z); return v; }
@@ -14,8 +21,8 @@ class Vec3
     Invert(v) { return new Vec3(-this.x, -this.y, -this.z); }
     Normalize()
     {
-        let len = this.Length();
-        return new Vec3(this.x /= len, this.y /= len, this.z /= len);
+        let k = 1.0 / this.Length();
+        return new Vec3(this.x * k, this.y * k, this.z * k);
     }
     Reflect(n)
     {
@@ -33,8 +40,8 @@ class Vec3
     InvertSelf() { this.x = -this.x; this.y = -this.y; this.z = -this.z; }
     NormalizeSelf()
     {
-        let len = this.Length();
-        this.x /= len; this.y /= len; this.z /= len;
+        let k = 1.0 / this.Length();
+        this.x *= k; this.y *= k; this.z *= k;
         return len;
     }
 }
