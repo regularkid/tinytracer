@@ -2,7 +2,8 @@ class Vec3
 {
     constructor(x, y, z) { this.Set(x, y, z); }
     Set(x, y, z) { this.x = x || 0.0; this.y = y || 0.0; this.z = z || 0.0; }
-    Length() { return Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z); }
+    LengthSq() { return this.x*this.x + this.y*this.y + this.z*this.z; }
+    Length() { return Math.sqrt(this.LengthSq()); }
     Dot(v) { return (this.x*v.x + this.y*v.y + this.z*v.z); }
     
     // Return a new vector
