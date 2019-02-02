@@ -42,7 +42,7 @@ function Render()
                 let dir = new Vec3(-2.0 + ((x + Math.random()) / ctx.canvas.width)*4.0, 1.0 - ((y + Math.random()) / ctx.canvas.height)*2.0, -1.0);
                 dir.Normalize();
 
-                CastRay(new Vec3(0, 0, 0), dir, color, 1);
+                //CastRay(new Vec3(0, 0, 0), dir, color, 1);
                 colorSum.Add(color);
             }
 
