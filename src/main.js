@@ -18,7 +18,14 @@ var lights = new Array();
 lights.push(new Light(new Vec3(-5.0, 0.0, -7.0), 0.5));
 lights.push(new Light(new Vec3(15.0, 15.0, -5.0), 0.5));
 
-var backgroundColor = new Vec3(0.2, 0.2, 0.2);
+var backgroundColorTop = new Vec3(1.0, 1.0, 1.0);
+var backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
+
+function Color(ray)
+{
+    let t = (ray.dir.y + 1.0) * 0.5;
+    return backgroundColorTop.Lerp(backgroundColorBottom, t);
+}
 
 var curAngle = 0;
 function Render()
@@ -26,6 +33,7 @@ function Render()
     let start = Date.now();
     let color = new Vec3();
     let samplesPerPixel = 1;
+    let cameraPos = new Vec3(0, 0, 0);
 
     // TEMP!
     // curAngle = (Date.now() * 0.0005) % 6.28;
@@ -39,14 +47,15 @@ function Render()
             let colorSum = new Vec3(0, 0, 0);
             for (var s = 0; s < samplesPerPixel; s++)
             {
-                let dir = new Vec3(-2.0 + ((x + Math.random()) / ctx.canvas.width)*4.0, 1.0 - ((y + Math.random()) / ctx.canvas.height)*2.0, -1.0);
-                dir.Normalize();
+                //let dir = new Vec3(-2.0 + ((x + Math.random()) / ctx.canvas.width)*4.0, 1.0 - ((y + Math.random()) / ctx.canvas.height)*2.0, -1.0);
+                let dir = new Vec3(-2.0 + (x / ctx.canvas.width)*4.0, 1.0 - (y / ctx.canvas.height)*2.0, -1.0);
+                let ray = new Ray(cameraPos, dir.Normalize());
 
                 //CastRay(new Vec3(0, 0, 0), dir, color, 1);
-                colorSum.Add(color);
+                colorSum.AddToSelf(Color(ray));
             }
 
-            colorSum.Scale(1.0/samplesPerPixel);
+            colorSum.ScaleSelf(1.0/samplesPerPixel);
 
             framebuffer.drawPixel(x, y, colorSum);
         }

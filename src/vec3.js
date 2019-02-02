@@ -32,6 +32,11 @@ class Vec3
         r.Sub(this);
         return r;
     }
+    Lerp(v, t)
+    {
+        let tInv = 1.0 - t;
+        return new Vec3(this.x*tInv + v.x*t, this.y*tInv + v.y*t, this.z*tInv + v.z*t);
+    }
 
     // Modify this vector
     AddToSelf(v) { this.x += v.x; this.y += v.y; this.z += v.z; }
