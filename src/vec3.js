@@ -45,7 +45,8 @@ class Vec3
     InvertSelf() { this.x = -this.x; this.y = -this.y; this.z = -this.z; }
     NormalizeSelf()
     {
-        let k = 1.0 / this.Length();
+        let len = this.Length();
+        let k = 1.0 / len;
         this.x *= k; this.y *= k; this.z *= k;
         return len;
     }

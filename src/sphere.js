@@ -8,40 +8,40 @@ class Sphere
         this.material = material;
     }
 
-    Intersects(origin, dir, hitPosition, hitNormal, hitMaterial)
+    Raycast(ray, hitInfo)
     {
         // From: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 
         // Is the projected sphere point farther away than the radius? If so, the ray doesn't intersect
-        let rayToCenter = new Vec3(this.center.x - origin.x, this.center.y - origin.y, this.center.z - origin.z);
-        let rayProjDist = rayToCenter.Dot(dir);
-        let distToRayProjSqr = (rayToCenter.x*rayToCenter.x + rayToCenter.y*rayToCenter.y + rayToCenter.z*rayToCenter.z) - rayProjDist*rayProjDist;
-        if (distToRayProjSqr > this.radiusSqr)
+        let rayOriginToCenter = this.center.Sub(ray.origin);
+        let rayOriginToProjDist = rayOriginToCenter.Dot(ray.dir);
+        let centerToProjDistSqr = rayOriginToCenter.LengthSq() - rayOriginToProjDist*rayOriginToProjDist;
+        if (centerToProjDistSqr > this.radiusSqr)
         {
             return false;
         }
 
-        // Calculate intersection point
-        let projToIntersectionDist = rayProjDist - Math.sqrt(this.radiusSqr - distToRayProjSqr);
-        if (projToIntersectionDist < 0.0)
+        // Calculate intersection point times
+        let projToIntersectionDist = Math.sqrt(this.radiusSqr - centerToProjDistSqr);
+        let t0 = rayOriginToProjDist - projToIntersectionDist;
+        let t1 = rayOriginToProjDist + projToIntersectionDist;
+
+        // Are both intersection points behind the ray origin? If so, the ray doesn't intersect
+        if (t0 < 0.0 && t1 < 0.0)
         {
             return false;
         }
 
-        if (hitPosition !== undefined)
-        {
-            hitPosition.Set(origin.x + dir.x*projToIntersectionDist, origin.y + dir.y*projToIntersectionDist, origin.z + dir.z*projToIntersectionDist);
-        }
+        // Get closest intersection time
+        if (t0 > t1) { t0 = t1; }
 
-        if (hitNormal !== undefined)
+        // Fill out hit info if one was passed in
+        if (hitInfo !== undefined)
         {
-            hitNormal.Set(hitPosition.x - this.center.x, hitPosition.y - this.center.y, hitPosition.z - this.center.z);
-            hitNormal.Normalize();
-        }
-
-        if (hitMaterial !== undefined)
-        {
-            hitMaterial.Set(this.material);
+            hitInfo.t = t0;
+            hitInfo.pos = ray.origin.Add(ray.dir.Scale(t0));
+            hitInfo.normal = hitInfo.pos.Sub(this.center);
+            hitInfo.normal.NormalizeSelf();
         }
 
         return true;
