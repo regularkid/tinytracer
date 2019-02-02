@@ -1,4 +1,5 @@
 var ctx = document.getElementById("canvas").getContext('2d');
+var framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
 
 var matRed = new Material(new Vec3(0.2, 0.0, 0.0), new Vec3(1.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0), 30.0);
 var matGreen = new Material(new Vec3(0.0, 0.2, 0.0), new Vec3(0.0, 1.0, 0.0), new Vec3(1.0, 1.0, 1.0), 10.0, 0.5);
@@ -28,9 +29,9 @@ function Render()
     let color = new Vec3();
 
     // TEMP!
-    curAngle = (Date.now() * 0.0005) % 6.28;
-    lights[0].position.x = Math.cos(curAngle)*25.0;
-    lights[0].position.z = -15 + Math.sin(curAngle)*25.0;
+    // curAngle = (Date.now() * 0.0005) % 6.28;
+    // lights[0].position.x = Math.cos(curAngle)*25.0;
+    // lights[0].position.z = -15 + Math.sin(curAngle)*25.0;
 
     for (var y = 0; y < ctx.canvas.height; y++)
     {
@@ -41,10 +42,11 @@ function Render()
 
             CastRay(new Vec3(0, 0, 0), dir, color, 1);
 
-            ctx.fillStyle = `rgb(${Math.min(color.x, 1.0)*255.0}, ${Math.min(color.y, 1.0)*255.0}, ${Math.min(color.z, 1.0)*255.0})`;
-            ctx.fillRect(x, y, 1, 1);
+            framebuffer.drawPixel(x, y, color);
         }
     }
+
+    framebuffer.drawToContext(ctx);
 
     let elapsed = Date.now() - start;
     console.log(elapsed);
@@ -73,7 +75,7 @@ function CastRay(origin, dir, color, depth)
         toLight.Normalize();
 
         // Any other objects blocking our view of the light? If so, don't include this light source (ie., shadows)
-        if (false)//depth > 0)
+        if (depth > 0)
         {
             let shadowTestStart = hitNormal.GetCopy();
             shadowTestStart.Scale(0.001);
@@ -134,7 +136,8 @@ function GetSceneIntersection(origin, dir, hitPosition, hitNormal, hitMaterial)
     return false;
 }
 
-setInterval(Render, 16);
+//setInterval(Render, 16);
+Render();
 
 function SetCanvasSize()
 {
