@@ -12,9 +12,7 @@ var objects = new Array();
 objects.push(new Sphere(new Vec3(0.0, -3.0, -15.0), 5.0, matRed));
 objects.push(new Sphere(new Vec3(6.0, 3.0, -17.0), 4.0, matBlack));
 objects.push(new Sphere(new Vec3(-4.0, 2.0, -20.0), 4.0, matBlue));
-objects.push(new Plane("y", new Vec3(0.0, -9.0, -25.0), 60.0, matGreen, matWhite));
-//objects.push(new Plane("x", new Vec3(-30.0, 0.0, -25.0), 60.0, matGreen));
-//objects.push(new Plane("z", new Vec3(0.0, 0.0, -55.0), 60.0, matGreen));
+objects.push(new Sphere(new Vec3(0.0, -100.0, 15.0), 100.0, matWhite));
 
 var lights = new Array();
 lights.push(new Light(new Vec3(-5.0, 0.0, -7.0), 0.5));
@@ -27,7 +25,7 @@ function Render()
 {
     let start = Date.now();
     let color = new Vec3();
-    let samplesPerPixel = 100;
+    let samplesPerPixel = 1;
 
     // TEMP!
     // curAngle = (Date.now() * 0.0005) % 6.28;
@@ -41,7 +39,7 @@ function Render()
             let colorSum = new Vec3(0, 0, 0);
             for (var s = 0; s < samplesPerPixel; s++)
             {
-                let dir = new Vec3(-1.0 + ((x + Math.random()) / ctx.canvas.width)*2.0, 1.0 - ((y + Math.random()) / ctx.canvas.height)*2.0, -1.0);
+                let dir = new Vec3(-2.0 + ((x + Math.random()) / ctx.canvas.width)*4.0, 1.0 - ((y + Math.random()) / ctx.canvas.height)*2.0, -1.0);
                 dir.Normalize();
 
                 CastRay(new Vec3(0, 0, 0), dir, color, 1);
