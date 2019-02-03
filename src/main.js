@@ -17,14 +17,18 @@ function Render()
         {
             RenderPixel(x, y);
         }
+
+        let pctComplete = Math.floor((y / ctx.canvas.height) * 100.0);
+        console.log(`Progress: ${pctComplete}%`);
     }
 
     framebuffer.drawToContext(ctx);
+    console.log(`Progress: 100%`);
 }
 
 function RenderPixel(x, y)
 {
-    let samplesPerPixel = 1;
+    let samplesPerPixel = 100;
     let colorSum = new Vec3(0, 0, 0);
 
     for (var s = 0; s < samplesPerPixel; s++)
@@ -36,17 +40,28 @@ function RenderPixel(x, y)
         colorSum.AddToSelf(GetSceneColor(ray));
     }
 
-    framebuffer.drawPixel(x, y, colorSum.Scale(1.0 / samplesPerPixel));
+    // Average
+    colorSum.ScaleSelf(1.0 / samplesPerPixel);
+
+    // Gamma correct
+    colorSum.Set(Math.sqrt(colorSum.x), Math.sqrt(colorSum.y), Math.sqrt(colorSum.z));
+
+    framebuffer.drawPixel(x, y, colorSum);
 }
 
 function GetSceneColor(ray)
 {
-    // If we hit a sphere just use the normal as the color
+    // If we hit a sphere
     let hitInfo = new HitInfo();
     if (Raycast(ray, hitInfo))
     {
-        let c = new Vec3(hitInfo.normal.x + 1.0, hitInfo.normal.y + 1.0, hitInfo.normal.z + 1.0);
-        return c.Scale(0.5);
+        let targetPos = hitInfo.pos.Add(hitInfo.normal).Add(Vec3.GetRandomDir());
+        let dir = targetPos.Sub(hitInfo.pos).Normalize();
+        let origin = hitInfo.pos.Add(hitInfo.normal.Scale(0.01));
+        let reflectedRay = new Ray(origin, dir);
+        //let reflectedColor = GetSceneColor(reflectedRay);
+
+        return GetSceneColor(reflectedRay).Scale(0.5);
     }
 
     // Background gradient from top to bottom
@@ -79,4 +94,5 @@ function Raycast(ray, hitInfo)
 
 let start = Date.now();
 Render();
-console.log(Date.now() - start);
+let elapsedSec = parseFloat((Date.now() - start) / 1000.0).toFixed(2);
+console.log(`Total time: ${elapsedSec} sec`);

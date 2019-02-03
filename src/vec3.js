@@ -50,4 +50,16 @@ class Vec3
         this.x *= k; this.y *= k; this.z *= k;
         return len;
     }
+
+    // Statics
+    static GetRandomDir()
+    {
+        let dir = new Vec3();
+        do
+        {
+            dir.Set(2.0*Math.random() - 1.0, 2.0*Math.random() - 1.0, 2.0*Math.random() - 1.0);
+        } while(dir.LengthSq() >= 1.0);
+
+        return dir;
+    }
 }
