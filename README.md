@@ -1,2 +1,2 @@
-# tinytracer
+# tracer
 Simple Raytracer
