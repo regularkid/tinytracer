@@ -8,7 +8,7 @@ class Sphere
         this.material = material;
     }
 
-    Raycast(ray, hitInfo)
+    Raycast(ray, hitInfo, tMin, tMax)
     {
         // From: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 
@@ -34,6 +34,12 @@ class Sphere
 
         // Get closest intersection time
         if (t0 > t1) { t0 = t1; }
+
+        // Outside our desired time range?
+        if (t0 < tMin || t0 > tMax)
+        {
+            return false;
+        }
 
         // Fill out hit info if one was passed in
         if (hitInfo !== undefined)

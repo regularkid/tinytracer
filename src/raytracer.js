@@ -3,15 +3,20 @@ var framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
 var camera = new Camera();
 
 var samplesPerPixel = 1;
+var maxRecursionDepth = 50;
 
 var backgroundColorTop = new Vec3(1.0, 1.0, 1.0);
 var backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
 
 var whiteDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8));
 var pinkDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.3, 0.3));
+var metalMat = new MetalMaterial(new Vec3(1.0, 1.0, 1.0), 0.0);
+var metalDirtyMat = new MetalMaterial(new Vec3(0.75, 0.6, 0.0), 0.0);
 
 var objects = new Array();
 objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, pinkDiffuse));
+objects.push(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, metalMat));
+objects.push(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, metalDirtyMat));
 objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, whiteDiffuse));
 
 var curPixelIdx = 0;
@@ -43,7 +48,7 @@ function RenderPixel(x, y)
         let vScreen = (y + Math.random()) / ctx.canvas.height;
         let ray = camera.GetRay(uScreen, vScreen);
 
-        colorSum.AddToSelf(GetSceneColor(ray));
+        colorSum.AddToSelf(GetSceneColor(ray, 0));
     }
 
     // Average
@@ -55,14 +60,21 @@ function RenderPixel(x, y)
     framebuffer.drawPixel(x, y, colorSum);
 }
 
-function GetSceneColor(ray)
+function GetSceneColor(ray, recursionDepth)
 {
     // If we hit a sphere
     let hitInfo = new HitInfo();
-    if (Raycast(ray, hitInfo))
+    if (Raycast(ray, hitInfo, 0.001, 100.0))
     {
-        let bounceDir = hitInfo.material.GetBounceDir(ray, hitInfo);
-        return GetSceneColor(bounceDir).Scale(0.5).Multiply(hitInfo.material.albedo);
+        if (recursionDepth < maxRecursionDepth)
+        {
+            let bounceDir = hitInfo.material.GetBounceDir(ray, hitInfo);
+            return GetSceneColor(bounceDir, recursionDepth + 1).Scale(0.5).Multiply(hitInfo.material.albedo);
+        }
+        else
+        {
+            return new Vec3(0, 0, 0);
+        }
     }
 
     // Background gradient from top to bottom
@@ -70,7 +82,7 @@ function GetSceneColor(ray)
     return backgroundColorTop.Lerp(backgroundColorBottom, t);
 }
 
-function Raycast(ray, hitInfo)
+function Raycast(ray, hitInfo, tMin, tMax)
 {
     let hitInfoCur = new HitInfo();
     let hitInfoClosest = new HitInfo();
@@ -78,7 +90,7 @@ function Raycast(ray, hitInfo)
     // Find the closest object intersection
     for (var i = 0; i < objects.length; i++)
     {
-        if (objects[i].Raycast(ray, hitInfoCur) && (hitInfoClosest.t < 0.0 || hitInfoCur.t < hitInfoClosest.t))
+        if (objects[i].Raycast(ray, hitInfoCur, tMin, tMax) && (hitInfoClosest.t < 0.0 || hitInfoCur.t < hitInfoClosest.t))
         {
             hitInfoCur.CopyTo(hitInfoClosest);
         }
