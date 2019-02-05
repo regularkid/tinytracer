@@ -5,15 +5,19 @@
         <title>Super Micro Fun - Tiny Tracer</title>
     </head>
     <body>
-        <center>
+        <!-- <center> -->
             <canvas id="canvas" width="1024" height="512" style="width:1024px; height:512px; image-rendering:pixelated"></canvas>
             <br/>
-        </center>
+        <!-- </center> -->
+
+        <label id="widthValue">256</label>
+        <input type="range" min="128" max="1024" value="256" style="width: 500px;" class="slider" id="width" name="width" oninput="UpdateWidthSliderDisplayValue()" />
+        <label for="width">Image Width</label>
+        <br/>
 
         <label id="samplesPerPixelDisplayValue">10</label>
-        <input type="range" min="1" max="250" value="10" style="width: 512px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSliderDisplayValue()" />
+        <input type="range" min="1" max="250" value="10" style="width: 500px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSPPSliderDisplayValue()" />
         <label for="samplesPerPixel">Samples Per Pixel</label>
-        <br/>
         <br/>
 
         <button onclick="StartRaytrace()">Generate</button>
