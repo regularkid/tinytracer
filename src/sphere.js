@@ -42,6 +42,7 @@ class Sphere
             hitInfo.pos = ray.origin.Add(ray.dir.Scale(t0));
             hitInfo.normal = hitInfo.pos.Sub(this.center);
             hitInfo.normal.NormalizeSelf();
+            hitInfo.material = this.material;
         }
 
         return true;

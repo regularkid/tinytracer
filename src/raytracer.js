@@ -7,9 +7,12 @@ var samplesPerPixel = 1;
 var backgroundColorTop = new Vec3(1.0, 1.0, 1.0);
 var backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
 
+var whiteDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8));
+var pinkDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.3, 0.3));
+
 var objects = new Array();
-objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5));
-objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0));
+objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, pinkDiffuse));
+objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, whiteDiffuse));
 
 var curPixelIdx = 0;
 var numPixels = ctx.canvas.width * ctx.canvas.height;
@@ -58,13 +61,8 @@ function GetSceneColor(ray)
     let hitInfo = new HitInfo();
     if (Raycast(ray, hitInfo))
     {
-        let targetPos = hitInfo.pos.Add(hitInfo.normal).Add(Vec3.GetRandomDir());
-        let dir = targetPos.Sub(hitInfo.pos).Normalize();
-        let origin = hitInfo.pos.Add(hitInfo.normal.Scale(0.01));
-        let reflectedRay = new Ray(origin, dir);
-        //let reflectedColor = GetSceneColor(reflectedRay);
-
-        return GetSceneColor(reflectedRay).Scale(0.5);
+        let bounceDir = hitInfo.material.GetBounceDir(ray, hitInfo);
+        return GetSceneColor(bounceDir).Scale(0.5).Multiply(hitInfo.material.albedo);
     }
 
     // Background gradient from top to bottom

@@ -18,6 +18,7 @@ class Vec3
     Add(v) { return new Vec3(this.x + v.x, this.y + v.y, this.z + v.z); }
     Sub(v) { return new Vec3(this.x - v.x, this.y - v.y, this.z - v.z); }
     Scale(s) { return new Vec3(this.x * s, this.y * s, this.z * s); }
+    Multiply(v) { return new Vec3(this.x * v.x, this.y * v.y, this.z * v.z); }
     Invert(v) { return new Vec3(-this.x, -this.y, -this.z); }
     Normalize()
     {
@@ -42,6 +43,7 @@ class Vec3
     AddToSelf(v) { this.x += v.x; this.y += v.y; this.z += v.z; }
     SubFromSelf(v) { this.x -= v.x; this.y -= v.y; this.z -= v.z; }
     ScaleSelf(s) { this.x *= s; this.y *= s; this.z *= s; }
+    MultiplySelf(v) { this.x *= v.x; this.y *= v.y; this.z *= v.z; }
     InvertSelf() { this.x = -this.x; this.y = -this.y; this.z = -this.z; }
     NormalizeSelf()
     {
