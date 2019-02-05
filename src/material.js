@@ -13,13 +13,13 @@ class DiffuseMaterial extends Material
         super(albedo);
     }
 
-    GetBounceDir(ray, hitInfo)
+    GetBounceDir(ray, hitInfo, bounceRay)
     {
         let targetPos = hitInfo.pos.Add(hitInfo.normal).Add(Vec3.GetRandomDir());
         let dir = targetPos.Sub(hitInfo.pos).Normalize();
-        let bounceRay = new Ray(hitInfo.pos, dir);
+        bounceRay.Set(hitInfo.pos, dir);
         
-        return bounceRay;
+        return true;
     }
 }
 
@@ -31,11 +31,19 @@ class MetalMaterial extends Material
         this.fuzziness = fuzziness;
     }
 
-    GetBounceDir(ray, hitInfo)
+    GetBounceDir(ray, hitInfo, bounceRay)
     {
-        let reflectedDir = ray.dir.Reflect(hitInfo.normal).Invert();
-        let bounceRay = new Ray(hitInfo.pos, reflectedDir);
+        let reflectedDir = ray.dir.Reflect(hitInfo.normal);
+
+        if (this.fuzziness > 0)
+        {
+            bounceRay.Set(hitInfo.pos, reflectedDir.Add(Vec3.GetRandomDir().Scale(this.fuzziness)));
+        }
+        else
+        {
+            bounceRay.Set(hitInfo.pos, reflectedDir);
+        }
         
-        return bounceRay;
+        return bounceRay.dir.Dot(hitInfo.normal) > 0;
     }
 }

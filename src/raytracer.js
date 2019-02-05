@@ -10,8 +10,8 @@ var backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
 
 var whiteDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8));
 var pinkDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.3, 0.3));
-var metalMat = new MetalMaterial(new Vec3(1.0, 1.0, 1.0), 0.0);
-var metalDirtyMat = new MetalMaterial(new Vec3(0.75, 0.6, 0.0), 0.0);
+var metalMat = new MetalMaterial(new Vec3(0.8, 0.8, 0.8), 0.1);
+var metalDirtyMat = new MetalMaterial(new Vec3(0.8, 0.6, 0.2), 0.5);
 
 var objects = new Array();
 objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, pinkDiffuse));
@@ -66,9 +66,9 @@ function GetSceneColor(ray, recursionDepth)
     let hitInfo = new HitInfo();
     if (Raycast(ray, hitInfo, 0.001, 100.0))
     {
-        if (recursionDepth < maxRecursionDepth)
+        let bounceDir = new Ray();
+        if (recursionDepth < maxRecursionDepth && hitInfo.material.GetBounceDir(ray, hitInfo, bounceDir))
         {
-            let bounceDir = hitInfo.material.GetBounceDir(ray, hitInfo);
             return GetSceneColor(bounceDir, recursionDepth + 1).Scale(0.5).Multiply(hitInfo.material.albedo);
         }
         else

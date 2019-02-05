@@ -29,9 +29,7 @@ class Vec3
     {
         // https://www.3dkingdoms.com/weekly/weekly.php?a=2
         let projLength2 = 2.0*this.Dot(n);
-        let r = new Vec3(n.x*projLength2, n.y*projLength2, n.z*projLength2);
-        r.Sub(this);
-        return r;
+        return this.Sub(n.Scale(projLength2));
     }
     Lerp(v, t)
     {
