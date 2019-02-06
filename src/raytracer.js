@@ -1,6 +1,6 @@
 var ctx = document.getElementById("canvas").getContext('2d');
 var framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
-var camera = new Camera();
+var camera = new Camera(new Vec3(0, 2, 4), new Vec3(0, 0, -1), 90.0, ctx.canvas.width / ctx.canvas.height);
 
 var samplesPerPixel = 1;
 var maxRecursionDepth = 50;
