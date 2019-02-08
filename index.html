@@ -10,14 +10,14 @@
             <br/>
         <!-- </center> -->
 
-        <label id="widthValue">512</label>
         <input type="range" min="128" max="1024" value="512" style="width: 500px;" class="slider" id="width" name="width" oninput="UpdateWidthSliderDisplayValue()" />
-        <label for="width">Image Width</label>
+        <label for="width">Image Width: </label>
+        <label id="widthValue">512</label>
         <br/>
 
-        <label id="samplesPerPixelDisplayValue">1</label>
         <input type="range" min="1" max="250" value="1" style="width: 500px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSPPSliderDisplayValue()" />
-        <label for="samplesPerPixel">Samples Per Pixel</label>
+        <label for="samplesPerPixel">Samples Per Pixel: </label>
+        <label id="samplesPerPixelDisplayValue">1</label>
         <br/>
 
         <button onclick="StartRaytrace()">Generate</button>
