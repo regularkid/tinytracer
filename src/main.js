@@ -1,5 +1,7 @@
 var generationStartTime = 0;
 
+var curAngle = 270;
+
 function Update()
 {
     let startTime = Date.now();
@@ -9,6 +11,12 @@ function Update()
         if (RenderNextPixel())
         {
             RenderImageToCanvas();
+            
+            // Temp
+            curAngle += 5.0;
+            camera.SetLookAt(new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0 - 1.0), new Vec3(0, 0, -1), 90.0, ctx.canvas.width / ctx.canvas.height);
+            window.requestAnimationFrame(Update);
+
             break;
         }
 
@@ -17,20 +25,20 @@ function Update()
 
     if (curPixelIdx > 0)
     {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, ctx.canvas.width, 20);
-        ctx.fillStyle = "#00FF00";
-        ctx.fillRect(0, 0, GetTotalRenderPct()*ctx.canvas.width, 20);
+        // ctx.fillStyle = "#000000";
+        // ctx.fillRect(0, 0, ctx.canvas.width, 20);
+        // ctx.fillStyle = "#00FF00";
+        // ctx.fillRect(0, 0, GetTotalRenderPct()*ctx.canvas.width, 20);
 
-        let pctText = `${Math.floor(GetTotalRenderPct() * 100.0)}%`;
-        ctx.font = `Bold 16px Arial`;
-        ctx.fillStyle = "#000";
-        ctx.fillText(pctText, 0, 40);
+        // let pctText = `${Math.floor(GetTotalRenderPct() * 100.0)}%`;
+        // ctx.font = `Bold 16px Arial`;
+        // ctx.fillStyle = "#000";
+        // ctx.fillText(pctText, 0, 40);
 
-        let totalElapsed = Date.now() - generationStartTime;
-        ctx.fillText(msToTime(totalElapsed), 0, 65);
+        // let totalElapsed = Date.now() - generationStartTime;
+        // ctx.fillText(msToTime(totalElapsed), 0, 65);
 
         window.requestAnimationFrame(Update);
     }

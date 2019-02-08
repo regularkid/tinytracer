@@ -17,7 +17,7 @@ class Camera
         this.vpHeight = this.vpWidth / aspectRatio;
 
         this.forward = this.lookAt.Sub(this.pos).Normalize();
-        this.right = this.lookAt.Cross(new Vec3(0, 1, 0)).Normalize();
+        this.right = this.forward.Cross(new Vec3(0, 1, 0)).Normalize();
         this.up = this.right.Cross(this.forward).Normalize();
 
         this.vpUpperLeft = this.pos.Add(this.forward);
