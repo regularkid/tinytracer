@@ -50,6 +50,7 @@ function StartRaytrace()
     generationStartTime = Date.now();
     curPixelIdx = 0;
     numPixels = imageWidth * imageHeight;
+    framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
 
     window.requestAnimationFrame(Update);
 }
