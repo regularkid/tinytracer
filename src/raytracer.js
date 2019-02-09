@@ -1,6 +1,13 @@
 var ctx = document.getElementById("canvas").getContext('2d');
 var framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
-var camera = new Camera(new Vec3(0, 2, 3), new Vec3(0, 0, -1), 90.0, ctx.canvas.width / ctx.canvas.height);
+
+var camPos = new Vec3(0, 2, 3);
+var camLookAt = new Vec3(0, 0, -1);
+var camFOV = 90.0;
+var camAspectRatio = ctx.canvas.width / ctx.canvas.height;
+var camFocusDist = camLookAt.Sub(camPos).Length();
+var camApertureRadius = 0.2;
+var camera = new Camera(camPos, camLookAt, camFOV, camAspectRatio, camFocusDist, camApertureRadius);
 
 var samplesPerPixel = 1;
 var maxRecursionDepth = 50;
@@ -12,12 +19,15 @@ var whiteDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8));
 var pinkDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.3, 0.3));
 var metalMat = new MetalMaterial(new Vec3(0.8, 0.8, 0.8), 0.1);
 var metalDirtyMat = new MetalMaterial(new Vec3(0.8, 0.6, 0.2), 0.5);
+var greenDiffuse = new DiffuseMaterial(new Vec3(0.3, 0.8, 0.3));
 
 var objects = new Array();
 objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, pinkDiffuse));
 objects.push(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, metalMat));
 objects.push(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, metalDirtyMat));
 objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, whiteDiffuse));
+objects.push(new Sphere(new Vec3(0.0, 0.0, -2.5), 0.5, greenDiffuse));
+objects.push(new Sphere(new Vec3(0.0, 0.0, 0.5), 0.5, greenDiffuse));
 
 var curPixelIdx = 0;
 var numPixels = ctx.canvas.width * ctx.canvas.height;

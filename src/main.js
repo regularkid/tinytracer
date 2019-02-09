@@ -14,7 +14,7 @@ function Update()
             
             // Temp
             curAngle += 5.0;
-            camera.SetLookAt(new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0 - 1.0), new Vec3(0, 0, -1), 90.0, ctx.canvas.width / ctx.canvas.height);
+            camera.SetLookAt(new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0 - 1.0), camLookAt, camFOV, camAspectRatio, camFocusDist, camApertureRadius);
             window.requestAnimationFrame(Update);
 
             break;
