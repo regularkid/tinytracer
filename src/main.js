@@ -1,47 +1,66 @@
 var generationStartTime = 0;
 
-var curAngle = 270;
+var curAngle = 0;
+
+var images = [];
+var curImageIdx = 0;
+var replayingAnim = false;
 
 function Update()
 {
-    let startTime = Date.now();
-    let elapsed = 0;
-    while (elapsed < 16)
+    if (replayingAnim)
     {
-        if (RenderNextPixel())
+        ctx.putImageData(images[curImageIdx], 0, 0);
+        curImageIdx = (curImageIdx + 1) % images.length;
+    }
+    else
+    {
+        let startTime = Date.now();
+        let elapsed = 0;
+        while (elapsed < 16)
         {
-            RenderImageToCanvas();
-            
-            // Temp
-            curAngle += 5.0;
-            camera.SetLookAt(new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0 - 1.0), camLookAt, camFOV, camAspectRatio, camFocusDist, camApertureRadius);
-            window.requestAnimationFrame(Update);
+            if (RenderNextPixel())
+            {
+                RenderImageToCanvas();
+                
+                // Temp
+                curAngle += 1.0;
+                camera.SetLookAt(new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0 - 1.0), camLookAt, camFOV, camAspectRatio, camFocusDist, camApertureRadius);
 
-            break;
+                images.push(framebuffer.imageData);
+                framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
+
+                if (curAngle >= 360.0)
+                {
+                    replayingAnim = true;
+                }
+
+                break;
+            }
+
+            elapsed = Date.now() - startTime;
         }
 
-        elapsed = Date.now() - startTime;
+        if (curPixelIdx > 0)
+        {
+            // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            // ctx.fillStyle = "#000000";
+            // ctx.fillRect(0, 0, ctx.canvas.width, 20);
+            // ctx.fillStyle = "#00FF00";
+            // ctx.fillRect(0, 0, GetTotalRenderPct()*ctx.canvas.width, 20);
+
+            // let pctText = `${Math.floor(GetTotalRenderPct() * 100.0)}%`;
+            // ctx.font = `Bold 16px Arial`;
+            // ctx.fillStyle = "#000";
+            // ctx.fillText(pctText, 0, 40);
+
+            // let totalElapsed = Date.now() - generationStartTime;
+            // ctx.fillText(msToTime(totalElapsed), 0, 65);
+        }
     }
 
-    if (curPixelIdx > 0)
-    {
-        // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        // ctx.fillStyle = "#000000";
-        // ctx.fillRect(0, 0, ctx.canvas.width, 20);
-        // ctx.fillStyle = "#00FF00";
-        // ctx.fillRect(0, 0, GetTotalRenderPct()*ctx.canvas.width, 20);
-
-        // let pctText = `${Math.floor(GetTotalRenderPct() * 100.0)}%`;
-        // ctx.font = `Bold 16px Arial`;
-        // ctx.fillStyle = "#000";
-        // ctx.fillText(pctText, 0, 40);
-
-        // let totalElapsed = Date.now() - generationStartTime;
-        // ctx.fillText(msToTime(totalElapsed), 0, 65);
-
-        window.requestAnimationFrame(Update);
-    }
+    window.requestAnimationFrame(Update);
 }
 
 function StartRaytrace()
@@ -59,6 +78,9 @@ function StartRaytrace()
     curPixelIdx = 0;
     numPixels = imageWidth * imageHeight;
     framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
+
+    // TEMP
+    camera.SetLookAt(new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0 - 1.0), camLookAt, camFOV, camAspectRatio, camFocusDist, camApertureRadius);
 
     window.requestAnimationFrame(Update);
 }
