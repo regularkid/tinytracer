@@ -15,6 +15,11 @@
         <label id="widthValue">512</label>
         <br/>
 
+        <input type="range" min="1" max="360" value="1" style="width: 500px;" class="slider" id="numFrames" name="numFrames" oninput="UpdateNumFramesSliderDisplayValue()" />
+        <label for="numFrames">Num Frames: </label>
+        <label id="numFramesValue">1</label>
+        <br/>
+
         <input type="range" min="1" max="250" value="1" style="width: 500px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSPPSliderDisplayValue()" />
         <label for="samplesPerPixel">Samples Per Pixel: </label>
         <label id="samplesPerPixelDisplayValue">1</label>

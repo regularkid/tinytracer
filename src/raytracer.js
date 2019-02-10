@@ -1,24 +1,18 @@
 class Raytracer
 {
-    constructor(ctx, samplesPerPixel)
+    constructor(ctx, samplesPerPixel, numFrames)
     {
         this.ctx = ctx;
         this.curPixelIdx = 0;
         this.curImageIdx = 0;
         this.numPixels = ctx.canvas.width * ctx.canvas.height;
-        this.numImages = 1;
+        this.numFrames = numFrames;
         this.samplesPerPixel = samplesPerPixel;
         this.maxRecursionDepth = 50;
 
         this.framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
 
-        this.camPos = new Vec3(0, 2, 3);
-        this.camLookAt = new Vec3(0, 0, -1);
-        this.camFOV = 90.0;
-        this.camAspectRatio = ctx.canvas.width / ctx.canvas.height;
-        this.camFocusDist = this.camLookAt.Sub(this.camPos).Length();
-        this.camApertureRadius = 0.2;
-        this.camera = new Camera(this.camPos, this.camLookAt, this.camFOV, this.camAspectRatio, this.camFocusDist, this.camApertureRadius);
+        this.SetCamera();
 
         this.backgroundColorTop = new Vec3(1.0, 1.0, 1.0);
         this.backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
@@ -30,12 +24,12 @@ class Raytracer
         this.greenDiffuse = new DiffuseMaterial(new Vec3(0.3, 0.8, 0.3));
         
         this.objects = new Array();
-        this.objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, this.pinkDiffuse));
-        this.objects.push(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, this.metalMat));
-        this.objects.push(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, this.metalDirtyMat));
-        this.objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, this.whiteDiffuse));
-        this.objects.push(new Sphere(new Vec3(0.0, 0.0, -2.5), 0.5, this.greenDiffuse));
-        this.objects.push(new Sphere(new Vec3(0.0, 0.0, 0.5), 0.5, this.greenDiffuse));
+        this.objects.push(new Sphere(new Vec3(0.0, 0.0, 0.0), 0.5, this.pinkDiffuse));
+        this.objects.push(new Sphere(new Vec3(-1.0, 0.0, 0.0), 0.5, this.metalMat));
+        this.objects.push(new Sphere(new Vec3(1.0, 0.0, 0.0), 0.5, this.metalDirtyMat));
+        this.objects.push(new Sphere(new Vec3(0.0, -100.5, 0.0), 100.0, this.whiteDiffuse));
+        this.objects.push(new Sphere(new Vec3(0.0, 0.0, -1.5), 0.5, this.greenDiffuse));
+        this.objects.push(new Sphere(new Vec3(0.0, 0.0, 1.5), 0.5, this.greenDiffuse));
 
         this.images = [];
     }
@@ -54,6 +48,8 @@ class Raytracer
 
             this.curPixelIdx = 0;
             this.curImageIdx++;
+
+            this.SetCamera();
         }
     }
 
@@ -132,12 +128,35 @@ class Raytracer
     GetTotalRenderPct()
     {
         let curTotalPixelIdx = (this.curImageIdx * this.numPixels) + this.curPixelIdx;
-        let numTotalPixels = this.numImages * this.numPixels;
+        let numTotalPixels = this.numFrames * this.numPixels;
         return curTotalPixelIdx / numTotalPixels;
     }
 
     IsComplete()
     {
-        return this.curImageIdx >= this.numImages;
+        return this.curImageIdx >= this.numFrames;
+    }
+
+    SetCamera()
+    {
+        let curAngle = (this.curImageIdx / this.numFrames) * 360.0;
+
+        this.camLookAt = new Vec3(0, 0, 0);
+        this.camPos = new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0);
+        this.camFOV = 90.0;
+        this.camAspectRatio = this.ctx.canvas.width / this.ctx.canvas.height;
+        this.camFocusDist = this.camLookAt.Sub(this.camPos).Length();
+        this.camApertureRadius = 0.2;
+        this.camera = new Camera(this.camPos, this.camLookAt, this.camFOV, this.camAspectRatio, this.camFocusDist, this.camApertureRadius);
+    }
+
+    GetFrameImage(idx)
+    {
+        return this.images[idx];
+    }
+
+    GetNumFrames()
+    {
+        return this.images.length;
     }
 }
