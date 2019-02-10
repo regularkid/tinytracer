@@ -53,4 +53,9 @@ class Sphere
 
         return true;
     }
+
+    SphereIntersect(center, radius)
+    {
+        return center.Sub(this.center).LengthSq() <= (this.radius+radius)*(this.radius+radius);
+    }
 }
