@@ -1,126 +1,143 @@
-var ctx = document.getElementById("canvas").getContext('2d');
-var framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
-
-var camPos = new Vec3(0, 2, 3);
-var camLookAt = new Vec3(0, 0, -1);
-var camFOV = 90.0;
-var camAspectRatio = ctx.canvas.width / ctx.canvas.height;
-var camFocusDist = camLookAt.Sub(camPos).Length();
-var camApertureRadius = 0.2;
-var camera = new Camera(camPos, camLookAt, camFOV, camAspectRatio, camFocusDist, camApertureRadius);
-
-var samplesPerPixel = 1;
-var maxRecursionDepth = 50;
-
-var backgroundColorTop = new Vec3(1.0, 1.0, 1.0);
-var backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
-
-var whiteDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8));
-var pinkDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.3, 0.3));
-var metalMat = new MetalMaterial(new Vec3(0.8, 0.8, 0.8), 0.1);
-var metalDirtyMat = new MetalMaterial(new Vec3(0.8, 0.6, 0.2), 0.5);
-var greenDiffuse = new DiffuseMaterial(new Vec3(0.3, 0.8, 0.3));
-
-var objects = new Array();
-objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, pinkDiffuse));
-objects.push(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, metalMat));
-objects.push(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, metalDirtyMat));
-objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, whiteDiffuse));
-objects.push(new Sphere(new Vec3(0.0, 0.0, -2.5), 0.5, greenDiffuse));
-objects.push(new Sphere(new Vec3(0.0, 0.0, 0.5), 0.5, greenDiffuse));
-
-var curPixelIdx = 0;
-var numPixels = ctx.canvas.width * ctx.canvas.height;
-
-function RenderNextPixel()
+class Raytracer
 {
-    let x = curPixelIdx % ctx.canvas.width;
-    let y = Math.floor(curPixelIdx / ctx.canvas.width);
-    RenderPixel(x, y);
-
-    curPixelIdx++;
-    if (curPixelIdx === numPixels)
+    constructor(ctx, samplesPerPixel)
     {
-        curPixelIdx = 0;
-        return true;
+        this.ctx = ctx;
+        this.curPixelIdx = 0;
+        this.curImageIdx = 0;
+        this.numPixels = ctx.canvas.width * ctx.canvas.height;
+        this.numImages = 1;
+        this.samplesPerPixel = samplesPerPixel;
+        this.maxRecursionDepth = 50;
+
+        this.framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
+
+        this.camPos = new Vec3(0, 2, 3);
+        this.camLookAt = new Vec3(0, 0, -1);
+        this.camFOV = 90.0;
+        this.camAspectRatio = ctx.canvas.width / ctx.canvas.height;
+        this.camFocusDist = this.camLookAt.Sub(this.camPos).Length();
+        this.camApertureRadius = 0.2;
+        this.camera = new Camera(this.camPos, this.camLookAt, this.camFOV, this.camAspectRatio, this.camFocusDist, this.camApertureRadius);
+
+        this.backgroundColorTop = new Vec3(1.0, 1.0, 1.0);
+        this.backgroundColorBottom = new Vec3(0.5, 0.7, 1.0);
+
+        this.whiteDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8));
+        this.pinkDiffuse = new DiffuseMaterial(new Vec3(0.8, 0.3, 0.3));
+        this.metalMat = new MetalMaterial(new Vec3(0.8, 0.8, 0.8), 0.1);
+        this.metalDirtyMat = new MetalMaterial(new Vec3(0.8, 0.6, 0.2), 0.5);
+        this.greenDiffuse = new DiffuseMaterial(new Vec3(0.3, 0.8, 0.3));
+        
+        this.objects = new Array();
+        this.objects.push(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, this.pinkDiffuse));
+        this.objects.push(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, this.metalMat));
+        this.objects.push(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, this.metalDirtyMat));
+        this.objects.push(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, this.whiteDiffuse));
+        this.objects.push(new Sphere(new Vec3(0.0, 0.0, -2.5), 0.5, this.greenDiffuse));
+        this.objects.push(new Sphere(new Vec3(0.0, 0.0, 0.5), 0.5, this.greenDiffuse));
+
+        this.images = [];
     }
-
-    return false;
-}
-
-function RenderPixel(x, y)
-{
-    let colorSum = new Vec3(0, 0, 0);
-
-    for (var s = 0; s < samplesPerPixel; s++)
+    
+    RenderNextPixel()
     {
-        let uScreen = (x + Math.random()) / ctx.canvas.width;
-        let vScreen = (y + Math.random()) / ctx.canvas.height;
-        let ray = camera.GetRay(uScreen, vScreen);
+        let x = this.curPixelIdx % this.ctx.canvas.width;
+        let y = Math.floor(this.curPixelIdx / this.ctx.canvas.width);
+        this.RenderPixel(x, y);
 
-        colorSum.AddToSelf(GetSceneColor(ray, 0));
-    }
-
-    // Average
-    colorSum.ScaleSelf(1.0 / samplesPerPixel);
-
-    // Gamma correct
-    colorSum.Set(Math.sqrt(colorSum.x), Math.sqrt(colorSum.y), Math.sqrt(colorSum.z));
-
-    framebuffer.drawPixel(x, y, colorSum);
-}
-
-function GetSceneColor(ray, recursionDepth)
-{
-    // If we hit a sphere
-    let hitInfo = new HitInfo();
-    if (Raycast(ray, hitInfo, 0.001, 100.0))
-    {
-        let bounceDir = new Ray();
-        if (recursionDepth < maxRecursionDepth && hitInfo.material.GetBounceDir(ray, hitInfo, bounceDir))
+        this.curPixelIdx++;
+        if (this.curPixelIdx === this.numPixels)
         {
-            return GetSceneColor(bounceDir, recursionDepth + 1).Scale(0.5).Multiply(hitInfo.material.albedo);
-        }
-        else
-        {
-            return new Vec3(0, 0, 0);
+            this.images.push(this.framebuffer.imageData);
+            this.framebuffer = new Framebuffer(this.ctx, this.ctx.canvas.width, this.ctx.canvas.height);
+
+            this.curPixelIdx = 0;
+            this.curImageIdx++;
         }
     }
 
-    // Background gradient from top to bottom
-    let t = (ray.dir.y + 1.0) * 0.5;
-    return backgroundColorTop.Lerp(backgroundColorBottom, t);
-}
-
-function Raycast(ray, hitInfo, tMin, tMax)
-{
-    let hitInfoCur = new HitInfo();
-    let hitInfoClosest = new HitInfo();
-
-    // Find the closest object intersection
-    for (var i = 0; i < objects.length; i++)
+    RenderPixel(x, y)
     {
-        if (objects[i].Raycast(ray, hitInfoCur, tMin, tMax) && (hitInfoClosest.t < 0.0 || hitInfoCur.t < hitInfoClosest.t))
+        let colorSum = new Vec3(0, 0, 0);
+
+        for (var s = 0; s < this.samplesPerPixel; s++)
         {
-            hitInfoCur.CopyTo(hitInfoClosest);
+            let uScreen = (x + Math.random()) / this.ctx.canvas.width;
+            let vScreen = (y + Math.random()) / this.ctx.canvas.height;
+            let ray = this.camera.GetRay(uScreen, vScreen);
+
+            colorSum.AddToSelf(this.GetSceneColor(ray, 0));
         }
+
+        // Average
+        colorSum.ScaleSelf(1.0 / this.samplesPerPixel);
+
+        // Gamma correct
+        colorSum.Set(Math.sqrt(colorSum.x), Math.sqrt(colorSum.y), Math.sqrt(colorSum.z));
+
+        this.framebuffer.drawPixel(x, y, colorSum);
     }
 
-    // Fill out the hitInfo if the caller cares about it
-    if (hitInfo !== undefined)
+    GetSceneColor(ray, recursionDepth)
     {
-        hitInfoClosest.CopyTo(hitInfo);
+        // If we hit a sphere
+        let hitInfo = new HitInfo();
+        if (this.Raycast(ray, hitInfo, 0.001, 100.0))
+        {
+            let bounceDir = new Ray();
+            if (recursionDepth < this.maxRecursionDepth && hitInfo.material.GetBounceDir(ray, hitInfo, bounceDir))
+            {
+                return this.GetSceneColor(bounceDir, recursionDepth + 1).Scale(0.5).Multiply(hitInfo.material.albedo);
+            }
+            else
+            {
+                return new Vec3(0, 0, 0);
+            }
+        }
+
+        // Background gradient from top to bottom
+        let t = (ray.dir.y + 1.0) * 0.5;
+        return this.backgroundColorTop.Lerp(this.backgroundColorBottom, t);
     }
 
-    return hitInfoClosest.t >= 0.0;
-}
+    Raycast(ray, hitInfo, tMin, tMax)
+    {
+        let hitInfoCur = new HitInfo();
+        let hitInfoClosest = new HitInfo();
 
-function RenderImageToCanvas()
-{
-    framebuffer.drawToContext(ctx);
-}
+        // Find the closest object intersection
+        for (var i = 0; i < this.objects.length; i++)
+        {
+            if (this.objects[i].Raycast(ray, hitInfoCur, tMin, tMax) && (hitInfoClosest.t < 0.0 || hitInfoCur.t < hitInfoClosest.t))
+            {
+                hitInfoCur.CopyTo(hitInfoClosest);
+            }
+        }
 
-function GetTotalRenderPct()
-{
-    return curPixelIdx / numPixels;
+        // Fill out the hitInfo if the caller cares about it
+        if (hitInfo !== undefined)
+        {
+            hitInfoClosest.CopyTo(hitInfo);
+        }
+
+        return hitInfoClosest.t >= 0.0;
+    }
+
+    RenderImageToCanvas()
+    {
+        this.framebuffer.drawToContext(ctx);
+    }
+
+    GetTotalRenderPct()
+    {
+        let curTotalPixelIdx = (this.curImageIdx * this.numPixels) + this.curPixelIdx;
+        let numTotalPixels = this.numImages * this.numPixels;
+        return curTotalPixelIdx / numTotalPixels;
+    }
+
+    IsComplete()
+    {
+        return this.curImageIdx >= this.numImages;
+    }
 }

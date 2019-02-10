@@ -27,6 +27,11 @@ class Camera
         this.vpUpperLeft.AddToSelf(this.up.Scale(this.vpHeight * 0.5));
     }
 
+    SetPos(pos)
+    {
+        this.SetLookAt(pos, this.lookAt, this.fov, this.aspectRatio, this.focusDist, this.apertureRadius);
+    }
+
     GetRay(uScreen, vScreen)
     {
         let rOffset = Vec3.GetRandomDir().Scale(this.apertureRadius);
