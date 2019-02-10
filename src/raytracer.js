@@ -25,8 +25,8 @@ class Raytracer
         
         this.objects = new Array();
         this.objects.push(new Sphere(new Vec3(0.0, 0.0, 0.0), 0.5, this.pinkDiffuse));
-        this.objects.push(new Sphere(new Vec3(-1.0, 0.0, 0.0), 0.5, this.metalMat));
-        this.objects.push(new Sphere(new Vec3(1.0, 0.0, 0.0), 0.5, this.metalDirtyMat));
+        this.objects.push(new Sphere(new Vec3(-1.5, 0.0, 0.0), 0.5, this.metalMat));
+        this.objects.push(new Sphere(new Vec3(1.5, 0.0, 0.0), 0.5, this.metalDirtyMat));
         this.objects.push(new Sphere(new Vec3(0.0, -100.5, 0.0), 100.0, this.whiteDiffuse));
         this.objects.push(new Sphere(new Vec3(0.0, 0.0, -1.5), 0.5, this.greenDiffuse));
         this.objects.push(new Sphere(new Vec3(0.0, 0.0, 1.5), 0.5, this.greenDiffuse));
@@ -146,7 +146,7 @@ class Raytracer
         this.camFOV = 90.0;
         this.camAspectRatio = this.ctx.canvas.width / this.ctx.canvas.height;
         this.camFocusDist = this.camLookAt.Sub(this.camPos).Length();
-        this.camApertureRadius = 0.2;
+        this.camApertureRadius = 0.1;
         this.camera = new Camera(this.camPos, this.camLookAt, this.camFOV, this.camAspectRatio, this.camFocusDist, this.camApertureRadius);
     }
 
