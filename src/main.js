@@ -12,7 +12,7 @@ function StartRaytrace()
     ctx.canvas.height = imageHeight;
     ctx.canvas.style = `width:${imageWidth}px; height:${imageHeight}px;`;
 
-    raytracer = new Raytracer(ctx, document.getElementById("samplesPerPixel").value, document.getElementById("numFrames").value);
+    raytracer = new Raytracer(ctx.canvas.width, ctx.canvas.height, document.getElementById("samplesPerPixel").value, document.getElementById("numFrames").value);
 
     generationStartTime = Date.now();
 

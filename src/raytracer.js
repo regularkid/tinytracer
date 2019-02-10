@@ -1,16 +1,17 @@
 class Raytracer
 {
-    constructor(ctx, samplesPerPixel, numFrames)
+    constructor(width, height, samplesPerPixel, numFrames)
     {
-        this.ctx = ctx;
+        this.width = width;
+        this.height = height;
         this.curPixelIdx = 0;
         this.curImageIdx = 0;
-        this.numPixels = ctx.canvas.width * ctx.canvas.height;
+        this.numPixels = this.width * this.height;
         this.numFrames = numFrames;
         this.samplesPerPixel = samplesPerPixel;
         this.maxRecursionDepth = 50;
 
-        this.framebuffer = new Framebuffer(ctx, ctx.canvas.width, ctx.canvas.height);
+        this.framebuffer = new Framebuffer(this.width, this.height);
 
         this.SetCamera();
 
@@ -36,15 +37,15 @@ class Raytracer
     
     RenderNextPixel()
     {
-        let x = this.curPixelIdx % this.ctx.canvas.width;
-        let y = Math.floor(this.curPixelIdx / this.ctx.canvas.width);
+        let x = this.curPixelIdx % this.width;
+        let y = Math.floor(this.curPixelIdx / this.width);
         this.RenderPixel(x, y);
 
         this.curPixelIdx++;
         if (this.curPixelIdx === this.numPixels)
         {
             this.images.push(this.framebuffer.imageData);
-            this.framebuffer = new Framebuffer(this.ctx, this.ctx.canvas.width, this.ctx.canvas.height);
+            this.framebuffer = new Framebuffer(this.width, this.height);
 
             this.curPixelIdx = 0;
             this.curImageIdx++;
@@ -59,8 +60,8 @@ class Raytracer
 
         for (var s = 0; s < this.samplesPerPixel; s++)
         {
-            let uScreen = (x + Math.random()) / this.ctx.canvas.width;
-            let vScreen = (y + Math.random()) / this.ctx.canvas.height;
+            let uScreen = (x + Math.random()) / this.width;
+            let vScreen = (y + Math.random()) / this.height;
             let ray = this.camera.GetRay(uScreen, vScreen);
 
             colorSum.AddToSelf(this.GetSceneColor(ray, 0));
@@ -120,11 +121,6 @@ class Raytracer
         return hitInfoClosest.t >= 0.0;
     }
 
-    RenderImageToCanvas()
-    {
-        this.framebuffer.drawToContext(ctx);
-    }
-
     GetTotalRenderPct()
     {
         let curTotalPixelIdx = (this.curImageIdx * this.numPixels) + this.curPixelIdx;
@@ -144,7 +140,7 @@ class Raytracer
         this.camLookAt = new Vec3(0, 0, 0);
         this.camPos = new Vec3(Math.cos(curAngle * Math.PI/180.)*4.0, 2, Math.sin(curAngle * Math.PI/180.)*-4.0);
         this.camFOV = 90.0;
-        this.camAspectRatio = this.ctx.canvas.width / this.ctx.canvas.height;
+        this.camAspectRatio = this.width / this.height;
         this.camFocusDist = this.camLookAt.Sub(this.camPos).Length();
         this.camApertureRadius = 0.1;
         this.camera = new Camera(this.camPos, this.camLookAt, this.camFOV, this.camAspectRatio, this.camFocusDist, this.camApertureRadius);
