@@ -22,34 +22,45 @@ function StartRaytrace()
 
 function UpdateGenerating()
 {
-    let startTime = Date.now();
-    let elapsed = 0;
-    while (elapsed < 16)
-    {
-        raytracer.RenderNextPixel();
-        elapsed = Date.now() - startTime;
-    }
-
     if (raytracer.IsComplete())
     {
+        console.log(`Total Time: ${msToTime(Date.now() - generationStartTime)}`);
         updateAnimationRequestId = window.requestAnimationFrame(UpdateReplaying);
     }
     else
     {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, ctx.canvas.width, 20);
-        ctx.fillStyle = "#00FF00";
-        ctx.fillRect(0, 0, raytracer.GetTotalRenderPct()*ctx.canvas.width, 20);
+        // Frame progress
+        let frameText = `Frame Progress`;
+        ctx.font = `Bold 16px Arial`;
+        ctx.fillStyle = "#000";
+        ctx.fillText(frameText, 0, 20);
 
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 24, ctx.canvas.width, 20);
+        ctx.fillStyle = "#00FF00";
+        ctx.fillRect(0, 24, raytracer.GetFrameRenderPct()*ctx.canvas.width, 20);
+
+        // Total progress
+        let totalText = `Total Progress`;
+        ctx.font = `Bold 16px Arial`;
+        ctx.fillStyle = "#000";
+        ctx.fillText(totalText, 0, 70);
+
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 74, ctx.canvas.width, 20);
+        ctx.fillStyle = "#00FF00";
+        ctx.fillRect(0, 74, raytracer.GetTotalRenderPct()*ctx.canvas.width, 20);
+
+        // Time display
         let pctText = `${Math.floor(raytracer.GetTotalRenderPct() * 100.0)}%`;
         ctx.font = `Bold 16px Arial`;
         ctx.fillStyle = "#000";
-        ctx.fillText(pctText, 0, 40);
+        ctx.fillText(pctText, 0, 150);
 
         let totalElapsed = Date.now() - generationStartTime;
-        ctx.fillText(msToTime(totalElapsed), 0, 65);
+        ctx.fillText(msToTime(totalElapsed), 0, 175);
 
         updateAnimationRequestId = window.requestAnimationFrame(UpdateGenerating);
     }

@@ -4,7 +4,6 @@ class Raytracer
     {
         this.width = width;
         this.height = height;
-        this.curPixelIdx = 0;
         this.curImageIdx = 0;
         this.numPixels = this.width * this.height;
         this.numFrames = numFrames;
@@ -19,6 +18,82 @@ class Raytracer
         
         this.GenerateRandomScene();
         this.SetCamera();
+
+        this.CreateWorkers();
+        this.StartWorkers();
+    }
+
+    CreateWorkers()
+    {
+        this.workers = [];
+        this.workerProgress = [];
+        this.numWorkers = 20;
+        for (var workerIdx = 0; workerIdx < this.numWorkers; workerIdx++)
+        {
+            let worker = new Worker("src/worker.js");
+            worker.postMessage(["s", this.width, this.height, this.samplesPerPixel, this.maxRecursionDepth]);
+            worker.postMessage(["c", 0.0]);
+            for (var i = 0; i < this.objects.length; i++)
+            {
+                worker.postMessage(["o", this.objects[i].center, this.objects[i].radius, this.objects[i].material.albedo, this.objects[i].material.fuzziness]);
+            }
+
+            this.workers.push(worker);
+            this.workerProgress.push(0.0);
+        }
+    }
+
+    StartWorkers()
+    {
+        this.workersComplete = 0;
+        for (var workerIdx = 0; workerIdx < this.numWorkers; workerIdx++)
+        {
+            let curAngle = (this.curImageIdx / this.numFrames) * 360.0;
+            this.workers[workerIdx].postMessage(["c", curAngle]);
+
+            this.workers[workerIdx].onmessage = (event) =>
+            {
+                if (event.data[0] === "p")
+                {
+                    this.workerProgress[event.data[1]] = event.data[2];
+                }
+                else
+                {
+                    let rangeStart = event.data[0];
+                    let rangeEnd = event.data[1];
+                    let colors = event.data[2];
+
+                    console.log(`Got worker message: ${rangeStart}, ${rangeEnd}`);
+                    let colorIdx = 0;
+                    for (let i = rangeStart; i <= rangeEnd; i++)
+                    {
+                        let x = i % this.width;
+                        let y = Math.floor(i / this.width);
+                        this.framebuffer.drawPixel(x, y, new Vec3(colors[colorIdx].x, colors[colorIdx].y, colors[colorIdx].z));
+                        colorIdx++;
+                    }
+
+                    this.workersComplete++;
+
+                    if (this.workersComplete === this.numWorkers)
+                    {
+                        this.images.push(this.framebuffer.imageData);
+                        this.framebuffer = new Framebuffer(this.width, this.height);
+                        this.curImageIdx++;
+
+                        if (this.curImageIdx < this.numFrames)
+                        {
+                            this.StartWorkers();
+                        }
+                    }
+                }
+            };
+
+            let pixelsPerWorker = Math.ceil(this.numPixels / this.numWorkers);
+            let rangeStart = workerIdx * pixelsPerWorker;
+            let rangeEnd = rangeStart + (pixelsPerWorker - 1);
+            this.workers[workerIdx].postMessage([workerIdx, rangeStart, rangeEnd]);
+        }
     }
 
     GenerateRandomScene()
@@ -65,25 +140,6 @@ class Raytracer
 
         // Giant sphere to act as a ground plane
         this.objects.push(new Sphere(new Vec3(0.0, -1000.0, 0.0), 1000.0, new DiffuseMaterial(new Vec3(0.8, 0.8, 0.8))));
-    }
-    
-    RenderNextPixel()
-    {
-        let x = this.curPixelIdx % this.width;
-        let y = Math.floor(this.curPixelIdx / this.width);
-        this.RenderPixel(x, y);
-
-        this.curPixelIdx++;
-        if (this.curPixelIdx === this.numPixels)
-        {
-            this.images.push(this.framebuffer.imageData);
-            this.framebuffer = new Framebuffer(this.width, this.height);
-
-            this.curPixelIdx = 0;
-            this.curImageIdx++;
-
-            this.SetCamera();
-        }
     }
 
     RenderPixel(x, y)
@@ -167,11 +223,20 @@ class Raytracer
         return false;
     }
 
+    GetFrameRenderPct()
+    {
+        let totalProgress = 0.0;
+        for (let i = 0; i < this.workerProgress.length; i++)
+        {
+            totalProgress += this.workerProgress[i];
+        }
+        totalProgress /= this.workerProgress.length;
+        return totalProgress;
+    }
+
     GetTotalRenderPct()
     {
-        let curTotalPixelIdx = (this.curImageIdx * this.numPixels) + this.curPixelIdx;
-        let numTotalPixels = this.numFrames * this.numPixels;
-        return curTotalPixelIdx / numTotalPixels;
+        return this.curImageIdx / this.numFrames;
     }
 
     IsComplete()
