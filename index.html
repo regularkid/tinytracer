@@ -1,57 +1,108 @@
 <!doctype html>
 <html>
     <head>
+        <!-- Global Site Tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-106572464-1"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments)};
+        gtag('js', new Date());
+
+        gtag('config', 'UA-106572464-1');
+        </script>
+
         <meta charset="UTF-8" />
-        <title>Super Micro Fun - Tiny Tracer</title>
+        <link rel="stylesheet" href="/css/style.css" />
+        <title>Super Micro Fun - Ray Tracer</title>
     </head>
     <body>
-        <!-- <center> -->
-            <canvas id="canvas" width="512" height="256" style="width:512px; height:256px; image-rendering:pixelated"></canvas>
+        <script src="/header.js"></script>
+
+        <div id="content">
+            <center>
+                <canvas id="canvas" width="512" height="256" style="width:512px; height:256px; image-rendering:pixelated"></canvas>
+                <br/>
+
+                <script src="src/vec3.js"></script>
+                <script src="src/ray.js"></script>
+                <script src="src/hitInfo.js"></script>
+                <script src="src/camera.js"></script>
+                <script src="src/framebuffer.js"></script>
+                <script src="src/material.js"></script>
+                <script src="src/sphere.js"></script>
+                <script src="src/raytracer.js"></script>
+                <script src="src/main.js"></script>
+            </center>
+
+            <input type="range" min="128" max="1024" value="512" style="width: 500px;" class="slider" id="width" name="width" oninput="UpdateWidthSliderDisplayValue()" />
+            <label for="width">Image Width: </label>
+            <label id="widthValue">512</label>
             <br/>
-        <!-- </center> -->
 
-        <input type="range" min="128" max="1024" value="256" style="width: 500px;" class="slider" id="width" name="width" oninput="UpdateWidthSliderDisplayValue()" />
-        <label for="width">Image Width: </label>
-        <label id="widthValue">256</label>
-        <br/>
+            <input type="range" min="1" max="250" value="1" style="width: 500px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSPPSliderDisplayValue()" />
+            <label for="samplesPerPixel">Samples Per Pixel: </label>
+            <label id="samplesPerPixelDisplayValue">1</label>
+            <br/>
 
-        <input type="range" min="1" max="250" value="1" style="width: 500px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSPPSliderDisplayValue()" />
-        <label for="samplesPerPixel">Samples Per Pixel: </label>
-        <label id="samplesPerPixelDisplayValue">1</label>
-        <br/>
+            <input type="range" min="1" max="360" value="1" style="width: 500px;" class="slider" id="numFrames" name="numFrames" oninput="UpdateNumFramesSliderDisplayValue()" />
+            <label for="numFrames">Num Frames: </label>
+            <label id="numFramesValue">1</label>
+            <br/>
 
-        <input type="range" min="1" max="360" value="1" style="width: 500px;" class="slider" id="numFrames" name="numFrames" oninput="UpdateNumFramesSliderDisplayValue()" />
-        <label for="numFrames">Num Frames: </label>
-        <label id="numFramesValue">1</label>
-        <br/>
+            <button onclick="StartRaytrace()">Generate</button>
 
-        <button onclick="StartRaytrace()">Generate</button>
+            <br/>
+            <br/>
 
-        <br/>
-        <br/>
+            <div id="info">
+                <br/>
+                <b>What Is This?</b><br/>
+                A ray tracer I made following along with the awesome book <a href="http://www.realtimerendering.com/raytracing/Ray%20Tracing%20in%20a%20Weekend.pdf">Ray Tracing in One Weekend</a>.<br/><br/>
 
-        <image src="Image_512x256_1spp.png"/>
-        <br/>
-        <image src="Image_512x256_10spp.png"/>
-        <br/>
-        <image src="Image_512x256_100spp.png"/>
-        <br/>
-        <image src="Image_512x256_250spp.png"/>
-        <br/>
-        <image src="Animation_256x128_1spp.gif"/>
-        <br/>
-        <image src="Animation_256x128_10spp.gif"/>
-        <br/>
-        <image src="Animation_256x128_100spp.gif"/>
+                You can use the sliders to control the size and super sampling amount. It's also setup to generate an animated camera if you increase the number of frames (however keep in mind that this will significantly increase the generation time!).<br/><br/>
 
-        <script src="src/vec3.js"></script>
-        <script src="src/ray.js"></script>
-        <script src="src/hitInfo.js"></script>
-        <script src="src/camera.js"></script>
-        <script src="src/framebuffer.js"></script>
-        <script src="src/material.js"></script>
-        <script src="src/sphere.js"></script>
-        <script src="src/raytracer.js"></script>
-        <script src="src/main.js"></script>
+                <b>How Long Did It Take?</b><br/>
+                On and off for about 3 weeks - definitely not a single weekend :)<br/><br/>
+
+                <b>How Many Lines of Code?</b><br/>
+                845<br/><br/>
+
+                <b>What Did I Learn?</b><br/>
+                A TON! In addition to all that is included in the ray tracer itself (math, shading model, anti-aliasing, depth of field, etc.), I also used <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers">Web Workers</a> for the first time in order to improve performance and split up the rendering into multiple threads.<br/><br/>
+
+                <b>Pre-Generated Examples</b><br/>
+                I pre-generated a few examples to show how the quality changes (and generation time increases) depending on the "Samples Per Pixel" parameter.<br/><br/>
+
+                512x256 Image @ 1 sample per pixel<br/>
+                Generation Time: 3 seconds<br/>
+                <image src="Image_512x256_1spp.png"/><br/><br/>
+
+                512x256 Image @ 10 samples per pixel<br/>
+                Generation Time: 10 seconds<br/>
+                <image src="Image_512x256_10spp.png"/><br/><br/>
+
+                512x256 Image @ 100 samples per pixel<br/>
+                Generation Time: 1 minute 30 seconds<br/>
+                <image src="Image_512x256_100spp.png"/><br/><br/>
+
+                512x256 Image @ 250 samples per pixel<br/>
+                Generation Time: 5 minutes<br/>
+                <image src="Image_512x256_250spp.png"/><br/><br/>
+
+                256x128 Animation @ 1 sample per pixel<br/>
+                Generation Time: 3 minutes 30 seconds<br/>
+                <image src="Animation_256x128_1spp.gif"/><br/><br/>
+
+                256x128 Animation @ 10 samples per pixel<br/>
+                Generation Time: 16 minutes<br/>
+                <image src="Animation_256x128_10spp.gif"/><br/><br/>
+
+                256x128 Animation @ 100 samples per pixel<br/>
+                Generation Time: 2 hours 12 minutes<br/>
+                <image src="Animation_256x128_100spp.gif"/>
+            </div>
+
+            <script src="/footer.js"></script>
+        </div>
     </body>
 </html>
