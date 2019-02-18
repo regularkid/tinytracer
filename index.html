@@ -10,14 +10,9 @@
             <br/>
         <!-- </center> -->
 
-        <input type="range" min="128" max="1024" value="512" style="width: 500px;" class="slider" id="width" name="width" oninput="UpdateWidthSliderDisplayValue()" />
+        <input type="range" min="128" max="1024" value="256" style="width: 500px;" class="slider" id="width" name="width" oninput="UpdateWidthSliderDisplayValue()" />
         <label for="width">Image Width: </label>
-        <label id="widthValue">512</label>
-        <br/>
-
-        <input type="range" min="1" max="360" value="1" style="width: 500px;" class="slider" id="numFrames" name="numFrames" oninput="UpdateNumFramesSliderDisplayValue()" />
-        <label for="numFrames">Num Frames: </label>
-        <label id="numFramesValue">1</label>
+        <label id="widthValue">256</label>
         <br/>
 
         <input type="range" min="1" max="250" value="1" style="width: 500px;" class="slider" id="samplesPerPixel" name="samplesPerPixel" oninput="UpdateSPPSliderDisplayValue()" />
@@ -25,7 +20,17 @@
         <label id="samplesPerPixelDisplayValue">1</label>
         <br/>
 
+        <input type="range" min="1" max="360" value="1" style="width: 500px;" class="slider" id="numFrames" name="numFrames" oninput="UpdateNumFramesSliderDisplayValue()" />
+        <label for="numFrames">Num Frames: </label>
+        <label id="numFramesValue">1</label>
+        <br/>
+
         <button onclick="StartRaytrace()">Generate</button>
+
+        <br/>
+        <br/>
+
+        <!-- <image src="anim.gif"/> -->
 
         <script src="src/vec3.js"></script>
         <script src="src/ray.js"></script>

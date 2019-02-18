@@ -25,6 +25,8 @@ function UpdateGenerating()
     if (raytracer.IsComplete())
     {
         console.log(`Total Time: ${msToTime(Date.now() - generationStartTime)}`);
+        //DownloadAllImages();
+
         updateAnimationRequestId = window.requestAnimationFrame(UpdateReplaying);
     }
     else
@@ -63,6 +65,37 @@ function UpdateGenerating()
         ctx.fillText(msToTime(totalElapsed), 0, 175);
 
         updateAnimationRequestId = window.requestAnimationFrame(UpdateGenerating);
+    }
+}
+
+var numDownloaded = 0;
+function DownloadAllImages()
+{
+    //for (let i = 0; i < raytracer.GetNumFrames(); i++)
+    {
+        let i = numDownloaded;
+        ctx.putImageData(raytracer.GetFrameImage(i), 0, 0);
+
+        let imageData = ctx.canvas.toDataURL("image/jpeg", 1.0);
+
+        let imageNum = (i + 1).toString();
+        while (imageNum.length < 3) { imageNum = "0" + imageNum; }
+        let tmpLink = document.createElement("a");
+        tmpLink.download = `image_${imageNum}.png`;
+        tmpLink.href = imageData;
+
+        console.log(`Downloading frame: ${tmpLink.download}`);
+
+        document.body.appendChild(tmpLink);
+        tmpLink.click();
+        document.body.removeChild(tmpLink);
+        
+        numDownloaded++;
+    }
+
+    if (numDownloaded < raytracer.GetNumFrames())
+    {
+        setTimeout(DownloadAllImages, 1000);
     }
 }
 
