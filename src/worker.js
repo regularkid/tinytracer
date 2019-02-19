@@ -143,7 +143,7 @@ onmessage = (event) =>
         let rangeEnd = event.data[2];
         let colors = [];
 
-        console.log(`Worker starting: ${rangeStart}, ${rangeEnd}`);
+        //console.log(`Worker starting: ${rangeStart}, ${rangeEnd}`);
 
         for (let i = rangeStart; i <= rangeEnd; i++)
         {
@@ -155,7 +155,7 @@ onmessage = (event) =>
             postMessage(["p", workerIdx, progress]);
         }
 
-        console.log(`Worker ending: ${rangeStart}, ${rangeEnd}`);
+        //console.log(`Worker ending: ${rangeStart}, ${rangeEnd}`);
         
         postMessage([rangeStart, rangeEnd, colors]);
     }

@@ -63,7 +63,7 @@ class Raytracer
                     let rangeEnd = event.data[1];
                     let colors = event.data[2];
 
-                    console.log(`Got worker message: ${rangeStart}, ${rangeEnd}`);
+                    //console.log(`Got worker message: ${rangeStart}, ${rangeEnd}`);
                     let colorIdx = 0;
                     for (let i = rangeStart; i <= rangeEnd; i++)
                     {
@@ -93,6 +93,7 @@ class Raytracer
             let rangeStart = workerIdx * pixelsPerWorker;
             let rangeEnd = rangeStart + (pixelsPerWorker - 1);
             this.workers[workerIdx].postMessage([workerIdx, rangeStart, rangeEnd]);
+            this.workerProgress[workerIdx] = 0.0;
         }
     }
 
@@ -236,7 +237,10 @@ class Raytracer
 
     GetTotalRenderPct()
     {
-        return this.curImageIdx / this.numFrames;
+        let framePct = this.GetFrameRenderPct() / this.numFrames;
+        let imagePct = this.curImageIdx / this.numFrames;
+        console.log(framePct + " - " + imagePct);
+        return framePct + imagePct;
     }
 
     IsComplete()
