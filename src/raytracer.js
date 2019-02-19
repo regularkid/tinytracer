@@ -239,7 +239,7 @@ class Raytracer
     {
         let framePct = this.GetFrameRenderPct() / this.numFrames;
         let imagePct = this.curImageIdx / this.numFrames;
-        console.log(framePct + " - " + imagePct);
+        //console.log(framePct + " - " + imagePct);
         return framePct + imagePct;
     }
 
