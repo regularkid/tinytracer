@@ -136,3 +136,5 @@ function msToTime(ms)
 
     return hours + ":" + minutes + ":" + seconds;
 }
+
+StartRaytrace();
